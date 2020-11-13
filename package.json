@@ -1,0 +1,35 @@
+{
+  "name": "gatada-vatos",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "fireServe": "yarn build && yarn firebase serve",
+    "fireEmulator": "yarn build && yarn firebase emulators:start",
+    "deploy": "yarn build && firebase deploy --only hosting"
+  },
+  "dependencies": {
+    "firebase": "^7.24.0",
+    "firebaseui": "^4.7.0",
+    "register-service-worker": "^1.7.1",
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.3",
+    "vue-meta": "^2.4.0",
+    "vue-property-decorator": "^8.4.2",
+    "vue-router": "^3.2.0",
+    "vuetify": "^2.2.11",
+    "vuex": "^3.5.1"
+  },
+  "devDependencies": {
+    "@vue/cli": "^4.5.6",
+    "@vue/cli-plugin-pwa": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-typescript": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "firebase-tools": "^8.11.2",
+    "material-design-icons-iconfont": "^6.1.0",
+    "stylus": "^0.54.7",
+    "stylus-loader": "^3.0.2",
+    "typescript": "~3.9.3",
+    "vue-template-compiler": "^2.6.11"
+  }
+}
