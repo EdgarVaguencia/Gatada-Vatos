@@ -40,8 +40,8 @@ export default {
             if (type === 'added') {
               commit('ADD_GATADA', data)
             } else if (type === 'modified') {
-              dispatch('addNotificacion', { text: 'Gatada Actualizada', type: 'success' })
               commit('UPDATE_GATADA', { data: data, gatada: newIndex })
+              dispatch('addNotificacion', { text: 'Gatada Actualizada', type: 'success' })
             } else if (type === 'removed') {
               commit('REMOVE_GATADA', oldIndex)
             }
@@ -49,7 +49,7 @@ export default {
         })
     },
     saveGatada ({ dispatch }, info) {
-      if (info.Uuid.length > 0) {
+      if (info.Uuid && info.Uuid.length > 0) {
         return dispatch('updateGatada', info)
       }
       return firebase.firestore().collection('gatadas').add(info)
@@ -73,7 +73,6 @@ export default {
         Jornada: gatada.Jornada
       })
         .then(data => {
-          dispatch('addNotificacion', { text: 'Gatada Actualizada', type: 'success' })
           return true
         })
         .catch(err => {

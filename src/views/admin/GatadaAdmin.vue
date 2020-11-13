@@ -71,25 +71,47 @@
                 {{ gatada.Fecha }}
               </td>
               <td>
-                <v-avatar
-                  @click="sumaMarcador(gatada, 1)"
+                <v-tooltip
+                  left
                 >
-                  <v-img
-                    :src="imgGatador(gatada.PrimerGatador)"
-                  ></v-img>
-                </v-avatar>
+                  <template
+                    v-slot:activator="{ on, attrs }"
+                  >
+                    <v-avatar
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="sumaMarcador(gatada, 1)"
+                    >
+                      <v-img
+                        :src="imgGatador(gatada.PrimerGatador)"
+                      ></v-img>
+                    </v-avatar>
+                  </template>
+                  <span>{{ nombreGatador(gatada.PrimerGatador) }}</span>
+                </v-tooltip>
               </td>
               <td>
                 {{gatada.Resultado.PrimerGatador}} - {{gatada.Resultado.SegundoGatador}}
               </td>
               <td>
-                <v-avatar
-                  @click="sumaMarcador(gatada, 2)"
+                <v-tooltip
+                  right
                 >
-                  <v-img
-                    :src="imgGatador(gatada.SegundoGatador)"
-                  ></v-img>
-                </v-avatar>
+                  <template
+                    v-slot:activator="{ on, attrs }"
+                  >
+                    <v-avatar
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="sumaMarcador(gatada, 2)"
+                    >
+                      <v-img
+                        :src="imgGatador(gatada.SegundoGatador)"
+                      ></v-img>
+                    </v-avatar>
+                  </template>
+                  <span>{{ nombreGatador(gatada.SegundoGatador) }}</span>
+                </v-tooltip>
               </td>
               <td>{{ gatada.Jornada }}</td>
               <td>
@@ -134,7 +156,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  v-model="fecha"
+                  v-model="gata.Fecha"
                   label="Fecha gatada"
                   readonly
                   v-bind="attrs"
@@ -142,19 +164,23 @@
                 ></v-text-field>
               </template>
               <v-date-picker
-                v-model="fecha"
+                v-model="gata.Fecha"
                 @input="fechaModal = false"
               ></v-date-picker>
             </v-menu>
             <v-text-field
-              v-model="jornada"
+              v-model="gata.Jornada"
               label="Jornada #"
             ></v-text-field>
             <v-autocomplete
-              v-model="gatador_1"
+              v-model="gata.PrimerGatador"
               label="Gatador 1"
-              item-text="Id"
-              :items="gatadores"
+              item-text="Nombre"
+              item-value="Id"
+              no-data-text="Gatadores no encontrados"
+              :loading="loadAutocompleteGatador_1"
+              :items="gatadoresItems_1"
+              :search-input.sync="searchAutocompleteGatador_1"
             >
               <template
                 v-slot:selection="data"
@@ -170,22 +196,16 @@
                   {{ data.item.Nombre }}
                 </v-chip>
               </template>
-              <template
-                v-slot:item="data"
-              >
-                <v-list-item-avatar>
-                  <img :src="data.item.Imagen">
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title v-html="data.item.Nombre"></v-list-item-title>
-                </v-list-item-content>
-              </template>
             </v-autocomplete>
             <v-autocomplete
-              v-model="gatador_2"
+              v-model="gata.SegundoGatador"
               label="Gatador 2"
-              item-text="Id"
-              :items="gatadores"
+              item-text="Nombre"
+              item-value="Id"
+              no-data-text="Gatadores no encontrados"
+              :loading="loadAutocompleteGatador_2"
+              :items="gatadoresItems_2"
+              :search-input.sync="searchAutocompleteGatador_2"
             >
               <template v-slot:selection="data">
                 <v-chip
@@ -198,16 +218,6 @@
                   </v-avatar>
                   {{ data.item.Nombre }}
                 </v-chip>
-              </template>
-              <template
-                v-slot:item="data"
-              >
-                <v-list-item-avatar>
-                  <img :src="data.item.Imagen">
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title v-html="data.item.Nombre"></v-list-item-title>
-                </v-list-item-content>
               </template>
             </v-autocomplete>
           </v-card-text>
@@ -244,14 +254,25 @@ export default class GatadaAdmin extends Vue {
   dialog: boolean = false
   isLoading: boolean = false
   fechaModal: boolean = false
-  gatador_1: number = 0
-  gatador_2: number = 0
-  fecha: string = new Date().toISOString().substr(0, 10)
+  loadAutocompleteGatador_1:boolean = false
+  loadAutocompleteGatador_2:boolean = false
   titulo:string = 'Nueva Gatada'
-  jornada:string = ""
-  gatada: gatadaType = null
+  searchAutocompleteGatador_1:string = ""
+  searchAutocompleteGatador_2:string = ""
+  gata: gatadaType = {
+    Fecha: new Date().toISOString().substr(0,10),
+    Jornada: '',
+    PrimerGatador: 0,
+    SegundoGatador: 0,
+    Resultado: {
+      PrimerGatador: 0,
+      SegundoGatador: 0
+    }
+  }
   gatadas: gatadaType[] = this.getGatadas
   gatadorSelect: number[] = []
+  gatadoresItems_1: gatadorType[] = []
+  gatadoresItems_2: gatadorType[] = []
 
   get gatadores(): gatadorType[] {
     return this.$store.getters.getGatadores
@@ -277,13 +298,51 @@ export default class GatadaAdmin extends Vue {
     this.gatadas = this.getGatadas
   }
 
+  @Watch('searchAutocompleteGatador_1')
+  filtroGatador_1(value:string) {
+    if (!value || value == '') {
+      this.gatadoresItems_1 = this.gatadores
+      return
+    }
+
+    this.loadAutocompleteGatador_1 = true
+    setTimeout(() => {
+      this.gatadoresItems_1 = this.gatadores.filter(g => {
+        return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1
+      })
+      this.loadAutocompleteGatador_1 = false
+    }, 500)
+  }
+
+  @Watch('searchAutocompleteGatador_2')
+  filtroGatador_2(value:string) {
+    if (!value || value == '') {
+      this.gatadoresItems_2 = this.gatadores
+      return
+    }
+
+    this.loadAutocompleteGatador_2 = true
+    setTimeout(() => {
+      this.gatadoresItems_2 = this.gatadores.filter(g => {
+        return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1
+      })
+      this.loadAutocompleteGatador_2 = false
+    }, 500)
+  }
+
   closeDialog() {
     this.titulo = 'Nueva Gatada'
     this.dialog = false
-    this.gatada = null
-    this.gatador_1 = 0
-    this.gatador_2 = 0
-    this.fecha = new Date().toISOString().substr(0, 10)
+    this.gata = {
+      Fecha: new Date().toISOString().substr(0,10),
+      Jornada: '',
+      PrimerGatador: 0,
+      SegundoGatador: 0,
+      Resultado: {
+        PrimerGatador: 0,
+        SegundoGatador: 0
+      }
+    }
   }
 
   imgGatador (idGatador:number) {
@@ -293,17 +352,7 @@ export default class GatadaAdmin extends Vue {
 
   saveGatada() {
     this.isLoading = true
-    this.$store.dispatch('saveGatada', {
-      Uuid: this.gatada ? this.gatada.Uuid : '',
-      Fecha: this.fecha,
-      Jornada: this.jornada,
-      PrimerGatador: this.gatador_1,
-      SegundoGatador: this.gatador_2,
-      Resultado: {
-        PrimerGatador: 0,
-        SegundoGatador: 0
-      }
-    })
+    this.$store.dispatch('saveGatada', this.gata)
       .then(complete => {
         this.isLoading = false
         if (complete) this.closeDialog()
@@ -311,32 +360,38 @@ export default class GatadaAdmin extends Vue {
   }
 
   sumaMarcador(gatadaData:any, gatador:number) {
-    this.gatada = gatadaData
-    
+    this.gata = gatadaData
+
     if (gatador === 1) {
-      this.gatada.Resultado.PrimerGatador += 1
+      this.gata.Resultado.PrimerGatador += 1
     } else if (gatador === 2) {
-      this.gatada.Resultado.SegundoGatador += 1
+      this.gata.Resultado.SegundoGatador += 1
     }
 
-    this.$store.dispatch('updateGatada', this.gatada)
+    this.$store.dispatch('updateGatada', this.gata)
+      .finally(() => {
+        this.closeDialog()
+      })
   }
 
   editGatador(gatada:string) {
-    this.gatada = this.getGatadas.find(g => g.Uuid === gatada)
-    if (this.gatada) {
+    this.gata = this.getGatadas.find(g => g.Uuid === gatada)
+    if (this.gata) {
       this.dialog = true
       this.titulo = 'Edita Gatada'
-      this.fecha = this.gatada.Fecha
-      this.jornada = this.gatada.Jornada
-      this.gatador_1 = this.gatada.PrimerGatador
-      this.gatador_2 = this.gatada.SegundoGatador
     }
   }
 
   removeFilter(item) {
     let index = this.gatadorSelect.indexOf(item)
     if (index >= 0) this.gatadorSelect.splice(index, 1)
+  }
+
+  nombreGatador(gatadorId:number): string {
+    let nombre = ''
+    let gatador = this.$store.getters.getGatador(gatadorId)
+    nombre = gatador.Nombre
+    return nombre
   }
 }
 </script>

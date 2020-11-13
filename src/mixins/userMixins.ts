@@ -1,5 +1,4 @@
 import { Component, Vue } from 'vue-property-decorator'
-import { auth } from 'firebase/app'
 
 @Component
 export default class UserMixins extends Vue {

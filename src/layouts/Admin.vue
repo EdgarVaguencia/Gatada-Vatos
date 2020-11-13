@@ -1,5 +1,6 @@
 <template>
   <div>
+    <AppNav />
     <v-snackbar
       top
       :value="true"
@@ -10,7 +11,6 @@
     >
       {{ item.text }}
     </v-snackbar>
-    <AppNav />
     <v-container
       fluid
     >

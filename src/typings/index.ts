@@ -1,5 +1,5 @@
 export interface gatadaType {
-  Uuid:string
+  Uuid?:string
   Fecha:string
   Jornada?:string
   PrimerGatador:number

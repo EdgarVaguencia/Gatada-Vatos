@@ -18,7 +18,6 @@ export default {
     },
     UPDATE_GATADOR (state, info) {
       let gatador = state.gatadores.find(g => g.Id === info.data.Uuid)
-      console.info(info.data.Redes)
 
       if (gatador) {
         gatador.Nombre = info.data.Nombre

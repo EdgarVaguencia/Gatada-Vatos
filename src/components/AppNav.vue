@@ -14,7 +14,7 @@
       </template>
     </v-app-bar>
     <v-navigation-drawer
-      absolute
+      app
       temporary
       v-model="draw"
     >
@@ -64,6 +64,5 @@ import UserMixins from '@/mixins/userMixins'
 @Component
 export default class AppNav extends Mixins(UserMixins) {
   draw: boolean = false
-  mini: boolean = true
 }
 </script>
