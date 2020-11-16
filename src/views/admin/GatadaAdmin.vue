@@ -7,7 +7,7 @@
     >
       <v-col
         cols="12"
-        md="2"
+        md="3"
       >
         <v-autocomplete
           multiple
@@ -301,13 +301,17 @@ export default class GatadaAdmin extends Vue {
   @Watch('searchAutocompleteGatador_1')
   filtroGatador_1(value:string) {
     if (!value || value == '') {
-      this.gatadoresItems_1 = this.gatadores
+      this.gatadoresItems_1 = this.gatadores.filter(g => {
+        return this.gata.SegundoGatador !== g.Id
+      })
       return
     }
 
     this.loadAutocompleteGatador_1 = true
     setTimeout(() => {
       this.gatadoresItems_1 = this.gatadores.filter(g => {
+        return this.gata.SegundoGatador !== g.Id
+      }).filter(g => {
         return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1
       })
       this.loadAutocompleteGatador_1 = false
@@ -317,13 +321,17 @@ export default class GatadaAdmin extends Vue {
   @Watch('searchAutocompleteGatador_2')
   filtroGatador_2(value:string) {
     if (!value || value == '') {
-      this.gatadoresItems_2 = this.gatadores
+      this.gatadoresItems_2 = this.gatadores.filter(g => {
+        return this.gata.PrimerGatador !== g.Id
+      })
       return
     }
 
     this.loadAutocompleteGatador_2 = true
     setTimeout(() => {
       this.gatadoresItems_2 = this.gatadores.filter(g => {
+        return this.gata.PrimerGatador !== g.Id
+      }).filter(g => {
         return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1
       })
       this.loadAutocompleteGatador_2 = false

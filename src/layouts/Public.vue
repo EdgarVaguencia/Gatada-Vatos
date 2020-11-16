@@ -12,6 +12,13 @@
         <router-view />
       </transition>
     </v-main>
+    <v-footer
+      padless
+    >
+      <v-col
+        cols="12"
+      >2020 / <a href="https://github.com/EdgarVaguencia/Gatada-Vatos" target="_blank">GitHub</a></v-col>
+    </v-footer>
   </v-app>
 </template>
 
