@@ -22,6 +22,7 @@ export default {
         gatada.Fecha = info.data.Fecha
         gatada.Resultado = info.data.Resultado
         gatada.Jornada = info.data.Jornada
+        gatada.Delete = info.data.Delete
       }
     },
     REMOVE_GATADA (state, index) {
@@ -41,7 +42,7 @@ export default {
               commit('ADD_GATADA', data)
             } else if (type === 'modified') {
               commit('UPDATE_GATADA', { data: data, gatada: newIndex })
-              dispatch('addNotificacion', { text: 'Gatada Actualizada', type: 'success' })
+              if (!data.Delete) dispatch('addNotificacion', { text: 'Gatada Actualizada', type: 'success' })
             } else if (type === 'removed') {
               commit('REMOVE_GATADA', oldIndex)
             }
@@ -70,7 +71,8 @@ export default {
         SegundoGatador: gatada.SegundoGatador,
         Fecha: gatada.Fecha,
         Resultado: gatada.Resultado,
-        Jornada: gatada.Jornada
+        Jornada: gatada.Jornada,
+        Temporada: gatada.Temporada
       })
         .then(data => {
           return true
@@ -80,15 +82,31 @@ export default {
           dispatch('addNotificacion', { text: 'No se pudo actualizar la gatada', type: 'error' })
           return false
         })
+    },
+    removeGatada ({ dispatch }, gatadaUuid) {
+      let gatadaDoc = firebase.firestore().collection('gatadas').doc(gatadaUuid)
+
+      gatadaDoc.update({
+        Delete: true
+      })
+        .then(data => {
+          dispatch('addNotificacion', { text: 'Gatada eliminada', type: 'warning' })
+        })
+        .catch(err => {
+          console.error(err)
+          dispatch('addNotificacion', { text: 'No se pudo eliminar la gatada', type: 'error' })
+        })
     }
   },
   getters: {
     getAllGatadas: (state) => {
-      return state.gatadas
+      return state.gatadas.filter(g => {
+        return g.Delete === false
+      })
     },
     getGatadas: (state) => (idGatador) => {
       return state.gatadas.filter(gatada => {
-        return (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador)
+        return gatada.Delete === false && (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador)
       })
     },
     getNumGatadas: (state, getters) => {

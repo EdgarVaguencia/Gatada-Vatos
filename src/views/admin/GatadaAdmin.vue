@@ -5,6 +5,19 @@
     <v-row
       class="justify-center"
     >
+       <v-col
+        cols="12"
+        md="3"
+      >
+        <v-select
+          label="Filtra temporadas"
+          :items="temporadas"
+          v-model="temporadaSelect"
+          item-text="Nombre"
+          item-value="Uuid"
+        >
+        </v-select>
+      </v-col>
       <v-col
         cols="12"
         md="3"
@@ -53,6 +66,7 @@
           <thead>
             <tr>
               <th>Fecha</th>
+              <th>Temporada</th>
               <th>Gatador #1</th>
               <th
                 class="text-center"
@@ -69,6 +83,9 @@
             >
               <td>
                 {{ gatada.Fecha }}
+              </td>
+              <td>
+                {{ getTemporada(gatada.Temporada) }}
               </td>
               <td>
                 <v-tooltip
@@ -121,6 +138,12 @@
                 >
                   <v-icon>create</v-icon>
                 </v-btn>
+                <v-btn
+                  icon
+                  @click="deleteGatador(gatada.Uuid)"
+                >
+                  <v-icon>close</v-icon>
+                </v-btn>
               </td>
             </tr>
           </tbody>
@@ -146,80 +169,109 @@
             v-text="titulo"
           ></v-card-title>
           <v-card-text>
-            <v-menu
-              v-model="fechaModal"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  v-model="gata.Fecha"
-                  label="Fecha gatada"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                v-model="gata.Fecha"
-                @input="fechaModal = false"
-              ></v-date-picker>
-            </v-menu>
-            <v-text-field
-              v-model="gata.Jornada"
-              label="Jornada #"
-            ></v-text-field>
-            <v-autocomplete
-              v-model="gata.PrimerGatador"
-              label="Gatador 1"
-              item-text="Nombre"
-              item-value="Id"
-              no-data-text="Gatadores no encontrados"
-              :loading="loadAutocompleteGatador_1"
-              :items="gatadoresItems_1"
-              :search-input.sync="searchAutocompleteGatador_1"
-            >
-              <template
-                v-slot:selection="data"
+            <v-row>
+              <v-col
+                cols="6"
               >
-                <v-chip
-                  v-bind="data.attrs"
-                  :input-value="data.selected"
-                  @click="data.select"
+                <v-select
+                  label="Temporada"
+                  :items="temporadas"
+                  item-text="Nombre"
+                  item-value="Uuid"
+                  v-model="gata.Temporada"
+                ></v-select>
+              </v-col>
+              <v-col
+                cols="6"
+              >
+                <v-menu
+                  v-model="fechaModal"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
                 >
-                  <v-avatar left>
-                    <v-img :src="data.item.Imagen"></v-img>
-                  </v-avatar>
-                  {{ data.item.Nombre }}
-                </v-chip>
-              </template>
-            </v-autocomplete>
-            <v-autocomplete
-              v-model="gata.SegundoGatador"
-              label="Gatador 2"
-              item-text="Nombre"
-              item-value="Id"
-              no-data-text="Gatadores no encontrados"
-              :loading="loadAutocompleteGatador_2"
-              :items="gatadoresItems_2"
-              :search-input.sync="searchAutocompleteGatador_2"
-            >
-              <template v-slot:selection="data">
-                <v-chip
-                  v-bind="data.attrs"
-                  :input-value="data.selected"
-                  @click="data.select"
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="gata.Fecha"
+                      label="Fecha gatada"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="gata.Fecha"
+                    @input="fechaModal = false"
+                  ></v-date-picker>
+                </v-menu>
+              </v-col>
+              <v-col
+                cols="12"
+              >
+                <v-text-field
+                  v-model="gata.Jornada"
+                  label="Jornada #"
+                ></v-text-field>
+              </v-col>
+              <v-col
+                cols="6"
+              >
+                <v-autocomplete
+                  v-model="gata.PrimerGatador"
+                  label="Gatador 1"
+                  item-text="Nombre"
+                  item-value="Id"
+                  no-data-text="Gatadores no encontrados"
+                  :loading="loadAutocompleteGatador_1"
+                  :items="gatadoresItems_1"
+                  :search-input.sync="searchAutocompleteGatador_1"
                 >
-                  <v-avatar left>
-                    <v-img :src="data.item.Imagen"></v-img>
-                  </v-avatar>
-                  {{ data.item.Nombre }}
-                </v-chip>
-              </template>
-            </v-autocomplete>
+                  <template
+                    v-slot:selection="data"
+                  >
+                    <v-chip
+                      v-bind="data.attrs"
+                      :input-value="data.selected"
+                      @click="data.select"
+                    >
+                      <v-avatar left>
+                        <v-img :src="data.item.Imagen"></v-img>
+                      </v-avatar>
+                      {{ data.item.Nombre }}
+                    </v-chip>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+              <v-col
+                cols="6"
+              >
+                <v-autocomplete
+                  v-model="gata.SegundoGatador"
+                  label="Gatador 2"
+                  item-text="Nombre"
+                  item-value="Id"
+                  no-data-text="Gatadores no encontrados"
+                  :loading="loadAutocompleteGatador_2"
+                  :items="gatadoresItems_2"
+                  :search-input.sync="searchAutocompleteGatador_2"
+                >
+                  <template v-slot:selection="data">
+                    <v-chip
+                      v-bind="data.attrs"
+                      :input-value="data.selected"
+                      @click="data.select"
+                    >
+                      <v-avatar left>
+                        <v-img :src="data.item.Imagen"></v-img>
+                      </v-avatar>
+                      {{ data.item.Nombre }}
+                    </v-chip>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+            </v-row>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -247,42 +299,54 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { gatadaType, gatadorType } from '@/typings'
+import { gatadaType, gatadorType, sedeType } from '@/typings'
 
 @Component
 export default class GatadaAdmin extends Vue {
-  dialog: boolean = false
-  isLoading: boolean = false
-  fechaModal: boolean = false
+  dialog:boolean = false
+  isLoading:boolean = false
+  fechaModal:boolean = false
   loadAutocompleteGatador_1:boolean = false
   loadAutocompleteGatador_2:boolean = false
   titulo:string = 'Nueva Gatada'
-  searchAutocompleteGatador_1:string = ""
-  searchAutocompleteGatador_2:string = ""
-  gata: gatadaType = {
+  searchAutocompleteGatador_1:string = ''
+  searchAutocompleteGatador_2:string = ''
+  temporadaSelect:string = ''
+  gata:gatadaType = {
     Fecha: new Date().toISOString().substr(0,10),
     Jornada: '',
     PrimerGatador: 0,
     SegundoGatador: 0,
     Resultado: {
       PrimerGatador: 0,
-      SegundoGatador: 0
-    }
+      SegundoGatador: 0,
+    },
+    Delete: false,
+    Temporada: ''
   }
-  gatadas: gatadaType[] = this.getGatadas
-  gatadorSelect: number[] = []
-  gatadoresItems_1: gatadorType[] = []
-  gatadoresItems_2: gatadorType[] = []
+  gatadas:gatadaType[] = []
+  gatadorSelect:number[] = []
+  gatadoresItems_1:gatadorType[] = []
+  gatadoresItems_2:gatadorType[] = []
 
-  get gatadores(): gatadorType[] {
+  get gatadores():gatadorType[] {
     return this.$store.getters.getGatadores
   }
 
-  get getGatadas(): gatadaType[] {
+  get getGatadas():gatadaType[] {
     return this.$store.getters.getAllGatadas
       .sort((a, b) => {
         return new Date(b.Fecha).getTime() - new Date(a.Fecha).getTime()
       })
+  }
+
+  get temporadas():sedeType[] {
+    return this.$store.getters.getSedes
+  }
+
+  @Watch('getGatadas', { immediate:true })
+  updateListGatadas() {
+    this.gatadas = this.getGatadas
   }
 
   @Watch('gatadorSelect')
@@ -338,6 +402,15 @@ export default class GatadaAdmin extends Vue {
     }, 500)
   }
 
+  @Watch('temporadaSelect')
+  filtroTemporada(value, oldValue) {
+    if (this.temporadaSelect.length > 0) {
+      this.gatadas = this.getGatadas.filter(g => {
+        return g.Temporada === this.temporadaSelect
+      })
+    }
+  }
+
   closeDialog() {
     this.titulo = 'Nueva Gatada'
     this.dialog = false
@@ -349,7 +422,9 @@ export default class GatadaAdmin extends Vue {
       Resultado: {
         PrimerGatador: 0,
         SegundoGatador: 0
-      }
+      },
+      Delete: false,
+      Temporada: ''
     }
   }
 
@@ -400,6 +475,15 @@ export default class GatadaAdmin extends Vue {
     let gatador = this.$store.getters.getGatador(gatadorId)
     nombre = gatador.Nombre
     return nombre
+  }
+
+  deleteGatador(gatadaUuid:string) {
+    this.$store.dispatch('removeGatada', gatadaUuid)
+  }
+
+  getTemporada(temporadaUuid:string) {
+    let temporada = this.temporadas.find(t => t.Uuid === temporadaUuid)
+    return temporada.Nombre
   }
 }
 </script>

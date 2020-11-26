@@ -1,3 +1,4 @@
+import { gatadorType } from '@/typings'
 import firebase from 'firebase'
 
 export default {
@@ -24,6 +25,7 @@ export default {
         gatador.Images = info.data.Imagen
         gatador.Activo = info.data.Activo
         gatador.Redes = info.data.Redes ? info.data.Redes : {}
+        gatador.Temporadas = info.data.Temporadas
       }
     },
     REMOVE_GATADOR (state, index) {
@@ -53,7 +55,7 @@ export default {
         })
     },
     fetchGatador ({ commit, dispatch }, idGatador) {
-      return firebase.firestore().collection("gatadores")
+      return firebase.firestore().collection('gatadores')
         .where('Id', '==', parseInt(idGatador))
         .onSnapshot(query => {
           console.info(query)
@@ -65,14 +67,14 @@ export default {
               commit('SET_GATADOR', data)
             } else if (type === 'modified') {
               dispatch('addNotificacion', { text: 'Gatador Actualizado', type: 'success' })
-              commit('UPDATE_GATADOR', {data: data, gatador: newIndex})
+              commit('UPDATE_GATADOR', { data: data, gatador: newIndex })
             } else if (type === 'removed') {
               commit('REMOVE_GATADOR', oldIndex)
             }
           })
         })
     },
-    updateGatador ({ dispatch }, gatador) {
+    updateGatador ({ dispatch }, gatador:gatadorType) {
       let gatadorDoc = firebase.firestore().collection('gatadores').doc(gatador.Uuid)
 
       return gatadorDoc.update(
@@ -80,7 +82,8 @@ export default {
           Nombre: gatador.Nombre,
           Imagen: gatador.Imagen,
           Activo: gatador.Activo,
-          Redes: gatador.Redes
+          Redes: gatador.Redes,
+          Temporadas: gatador.Temporadas
         }
       )
         .catch(err => {

@@ -19,6 +19,7 @@ export default {
           commit('SET_USER', isUser.toJSON())
           dispatch('fectchGatadas')
           dispatch('fetchGatadores')
+          dispatch('fetchSedes')
         }
       })
     },

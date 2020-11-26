@@ -39,6 +39,16 @@
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item
+          link
+          :to="{ name: 'AdminSedes'}"
+        >
+          <v-list-item-content>
+            <v-list-item-title>
+              Temporadas
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         <v-divider></v-divider>
         <v-list-item
           @click="logOut"

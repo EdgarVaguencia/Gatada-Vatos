@@ -4,6 +4,7 @@ import gatador from '@/db/modules/gatador'
 import gatadas from '@/db/modules/gatadas'
 import notificacion from '@/db/modules/notificacion'
 import user from '@/db/modules/user'
+import sedes from '@/db/modules/sedes'
 
 Vue.use(Vuex)
 
@@ -26,6 +27,7 @@ export default new Vuex.Store({
     gatador,
     gatadas,
     notificacion,
-    user
+    user,
+    sedes
   }
 })

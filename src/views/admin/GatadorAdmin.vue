@@ -7,35 +7,70 @@
     >
       <v-col
         cols="12"
-        md="8"
+        md="4"
+      >
+        <v-select
+          label="Filtra temporada"
+          :items="temporadas"
+          v-model="temporadaSelect"
+          item-text="Nombre"
+          item-value="Uuid"
+        ></v-select>
+      </v-col>
+      <v-col
+        cols="12"
+        md="10"
       >
         <v-list>
-          <v-list-item
-            v-for="(item, index) in gatadores"
-            :key="index"
+          <v-list-item-group
+            v-model="activos"
+            multiple
           >
-            <v-list-item-avatar>
-              <v-img
-                :src="item.Imagen"
-              ></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title
-                v-text="item.Nombre"
-              ></v-list-item-title>
-              <v-list-item-subtitle
-                v-if="!item.Activo"
-              >== RIP ==</v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn
-                icon
-                @click="editGatador(item.Uuid)"
+            <template
+              v-for="(item, index) in gatadores"
+            >
+              <v-list-item
+                :key="index"
+                :value="item.Uuid"
               >
-                <v-icon>create</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
+                <template v-slot:default="{ active }">
+                  <v-list-item-action>
+                    <v-icon
+                      v-if="active"
+                    >
+                      star
+                    </v-icon>
+                    <v-icon
+                      v-else
+                    >
+                      star_outline
+                    </v-icon>
+                  </v-list-item-action>
+                  <v-list-item-avatar>
+                    <v-img
+                      :src="item.Imagen"
+                    ></v-img>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-text="item.Nombre"
+                    ></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-if="!item.Activo"
+                    >== RIP ==</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn
+                      icon
+                      @click="editGatador(item.Uuid)"
+                    >
+                      <v-icon>create</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list-item-group>
         </v-list>
         <v-btn
           fab
@@ -58,31 +93,76 @@
             v-text="tituloDialog"
           ></v-card-title>
           <v-card-text>
-            <v-text-field
-              label="Url img"
-              v-model="gatador.Imagen"
-            ></v-text-field>
-            <v-text-field
-              label="Nombre"
-              v-model="gatador.Nombre"
-            ></v-text-field>
-            <v-switch
-              v-model="gatador.Activo"
-              label="Activo"
-            ></v-switch>
+            <v-row>
+              <v-col
+                cols="12"
+              >
+                <v-text-field
+                  label="Nombre"
+                  v-model="gatador.Nombre"
+                ></v-text-field>
+              </v-col>
+              <v-col
+                cols="12"
+              >
+                <v-text-field
+                  label="Url img"
+                  v-model="gatador.Imagen"
+                ></v-text-field>
+              </v-col>
+            </v-row>
             <v-divider></v-divider>
-            <v-text-field
-              label="Twitter"
-              v-model="gatador.Redes.Twitter"
-            ></v-text-field>
-            <v-text-field
-              label="Instagram"
-              v-model="gatador.Redes.Instagram"
-            ></v-text-field>
-            <v-text-field
-              label="YouTube"
-              v-model="gatador.Redes.Youtube"
-            ></v-text-field>
+            <v-row>
+              <v-col
+                cols="4"
+              >
+                <v-text-field
+                  label="Twitter"
+                  v-model="gatador.Redes.Twitter"
+                ></v-text-field>
+              </v-col>
+              <v-col
+                cols="4"
+              >
+                <v-text-field
+                  label="Instagram"
+                  v-model="gatador.Redes.Instagram"
+                ></v-text-field>
+              </v-col>
+              <v-col
+                cols="4"
+              >
+                <v-text-field
+                  label="YouTube"
+                  v-model="gatador.Redes.Youtube"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col>
+                <v-autocomplete
+                  multiple
+                  chips
+                  label="Temporadas"
+                  v-model="gatador.Temporadas"
+                  :items="temporadas"
+                  item-text="Nombre"
+                  item-value="Uuid"
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col
+                cols="12"
+              >
+                <v-switch
+                  v-model="gatador.Activo"
+                  label="Activo"
+                ></v-switch>
+              </v-col>
+            </v-row>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -109,27 +189,67 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { gatadorType } from '@/typings'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { gatadorType, sedeType } from '@/typings'
 
 @Component
 export default class GatadorAdmin extends Vue {
-  dialog: boolean = false
+  dialog:boolean = false
   isLoading:boolean = false
   tituloDialog: string = 'Nuevo Gatador'
-  gatadorSelect:number = 0
+  temporadaSelect:string = ''
+  temporadasGatador:string[] = []
+  activos:string[] = []
+  gatadores:gatadorType[] = []
   gatador:gatadorType = {
     Nombre: '',
     Imagen: '',
-    Redes: {}
+    Redes: {},
+    Temporadas: []
   }
 
-  created(){
-    this.$store.dispatch('fetchGatadores')
-  }
-
-  get gatadores() {
+  get getGatadores():gatadorType[] {
     return this.$store.getters.getGatadores
+  }
+
+  get temporadas():sedeType[] {
+    return this.$store.getters.getSedes
+  }
+
+  @Watch('getGatadores', { immediate:true })
+  updateListGatadores() {
+    this.gatadores = this.getGatadores
+    this.getGatadores.forEach(g => {
+      if (g.Activo) this.activos.push(g.Uuid)
+    })
+  }
+
+  @Watch('temporadaSelect')
+  filtroTemporada(value, oldValue) {
+    if (value.length > 0) {
+      this.gatadores = this.getGatadores.filter(g => {
+        return g.Temporadas.indexOf(value) >= 0
+      })
+      return
+    }
+    this.gatadores = this.getGatadores
+  }
+
+  @Watch('activos')
+  changeActivogatador(value:string[], oldValue:string[]) {
+    let todos = value.concat(oldValue)
+    todos.forEach(id => {
+      if (value.indexOf(id) < 0 || oldValue.indexOf(id) < 0) {
+        let gatador = this.getGatadores.find(g => g.Uuid === id)
+        if (gatador) {
+          gatador.Activo = !gatador.Activo
+          this.$store.dispatch('updateGatador', gatador)
+            .then(complete => {
+              console.info('Actualizado activos')
+            })
+        }
+      }
+    })
   }
 
   closeDialog () {
@@ -137,17 +257,19 @@ export default class GatadorAdmin extends Vue {
     this.gatador = {
       Nombre: '',
       Imagen: '',
-      Redes: {}
+      Redes: {},
+      Temporadas: []
     }
     this.tituloDialog = 'Nuevo Gatador'
   }
 
-  editGatador(idGatador:number) {
+  editGatador(idGatador:string) {
     this.gatador = this.gatadores.find(g => g.Uuid === idGatador)
     if (this.gatador) {
       this.dialog = true
       this.tituloDialog = 'Edita Gatador #' + this.gatador.Id
       if (!this.gatador.Redes) this.gatador.Redes = {}
+      if (!this.gatador.Temporadas) this.gatador.Temporadas = []
     }
   }
 
@@ -157,7 +279,7 @@ export default class GatadorAdmin extends Vue {
       this.$store.dispatch('updateGatador', this.gatador)
         .then(complete => {
           this.isLoading = false
-          this.dialog = false
+          this.closeDialog()
         })
     } else {
       this.isLoading = true
@@ -166,7 +288,10 @@ export default class GatadorAdmin extends Vue {
         Nombre: this.gatador.Nombre,
         Imagen: this.gatador.Imagen,
         Activo: true,
+        Redes: {},
+        Gatada: []
       })
+      this.closeDialog()
     }
   }
 }

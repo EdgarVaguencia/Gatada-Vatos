@@ -7,10 +7,17 @@ export interface gatadaType {
   Resultado: {
     PrimerGatador:number
     SegundoGatador:number
-  }
+  },
+  Delete:boolean
+  Temporada:string
+}
+
+interface temporadaGatador {
+  TemporadaUuid:string
 }
 
 export interface gatadorType {
+  Uuid?:string
   Id?:number
   Nombre:string
   Imagen:string
@@ -19,4 +26,14 @@ export interface gatadorType {
     Instagram?:string
     Youtube?:string
   }
+  Activo?:boolean
+  Temporadas?:temporadaGatador[]
+}
+
+export interface sedeType {
+  Uuid?:string
+  Nombre:string
+  Descripcion:string
+  Delete:boolean
+  Actual:boolean
 }
