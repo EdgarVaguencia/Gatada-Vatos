@@ -2,6 +2,7 @@
   <v-app
     id="publica"
   >
+    <AppNavPublic />
     <v-main
       class="mdc-top-app-bar--fixed-adjust mdc-layout-grid"
     >
@@ -25,12 +26,18 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import AppNavPublic from '@/components/AppNavPublic.vue'
 
-@Component
+@Component({
+  components: {
+    AppNavPublic
+  }
+})
 export default class App extends Vue {
   created () {
     this.$store.dispatch('fetchGatadores')
     this.$store.dispatch('fectchGatadas')
+    this.$store.dispatch('fetchSedes')
   }
 }
 </script>

@@ -21,56 +21,50 @@
         cols="12"
         md="10"
       >
-        <v-list>
-          <v-list-item-group
-            v-model="activos"
-            multiple
+        <v-list
+          flat
+        >
+          <v-list-item
+            v-for="(item, index) in gatadores"
+            :key="index"
+            :value="item.Uuid"
           >
-            <template
-              v-for="(item, index) in gatadores"
+            <v-list-item-action
+              @click="updateActivo(item)"
             >
-              <v-list-item
-                :key="index"
-                :value="item.Uuid"
+              <v-icon
+                v-if="item.Activo"
               >
-                <template v-slot:default="{ active }">
-                  <v-list-item-action>
-                    <v-icon
-                      v-if="active"
-                    >
-                      star
-                    </v-icon>
-                    <v-icon
-                      v-else
-                    >
-                      star_outline
-                    </v-icon>
-                  </v-list-item-action>
-                  <v-list-item-avatar>
-                    <v-img
-                      :src="item.Imagen"
-                    ></v-img>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-text="item.Nombre"
-                    ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-if="!item.Activo"
-                    >== RIP ==</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-btn
-                      icon
-                      @click="editGatador(item.Uuid)"
-                    >
-                      <v-icon>create</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                </template>
-              </v-list-item>
-            </template>
-          </v-list-item-group>
+                star
+              </v-icon>
+              <v-icon
+                v-else
+              >
+                star_outline
+              </v-icon>
+            </v-list-item-action>
+            <v-list-item-avatar>
+              <v-img
+                :src="item.Imagen"
+              ></v-img>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title
+                v-text="item.Nombre"
+              ></v-list-item-title>
+              <v-list-item-subtitle
+                v-if="!item.Activo"
+              >== RIP ==</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn
+                icon
+                @click="editGatador(item.Uuid)"
+              >
+                <v-icon>create</v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
         </v-list>
         <v-btn
           fab
@@ -219,9 +213,7 @@ export default class GatadorAdmin extends Vue {
   @Watch('getGatadores', { immediate:true })
   updateListGatadores() {
     this.gatadores = this.getGatadores
-    this.getGatadores.forEach(g => {
-      if (g.Activo) this.activos.push(g.Uuid)
-    })
+    if (this.temporadaSelect.length > 0) this.filtroTemporada(this.temporadaSelect,'')
   }
 
   @Watch('temporadaSelect')
@@ -235,21 +227,13 @@ export default class GatadorAdmin extends Vue {
     this.gatadores = this.getGatadores
   }
 
-  @Watch('activos')
-  changeActivogatador(value:string[], oldValue:string[]) {
-    let todos = value.concat(oldValue)
-    todos.forEach(id => {
-      if (value.indexOf(id) < 0 || oldValue.indexOf(id) < 0) {
-        let gatador = this.getGatadores.find(g => g.Uuid === id)
-        if (gatador) {
-          gatador.Activo = !gatador.Activo
-          this.$store.dispatch('updateGatador', gatador)
-            .then(complete => {
-              console.info('Actualizado activos')
-            })
-        }
-      }
-    })
+  updateActivo(gatador:gatadorType) {
+    let changeGatador = gatador
+    changeGatador.Activo = !gatador.Activo
+    this.$store.dispatch('updateGatador', changeGatador)
+      .then(complete => {
+        console.info('Actualizado activos')
+      })
   }
 
   closeDialog () {
@@ -284,12 +268,12 @@ export default class GatadorAdmin extends Vue {
     } else {
       this.isLoading = true
       this.$store.dispatch('saveGatador', {
-        Id: this.gatadores.length + 1,
+        Id: this.getGatadores.length + 1,
         Nombre: this.gatador.Nombre,
         Imagen: this.gatador.Imagen,
         Activo: true,
-        Redes: {},
-        Gatada: []
+        Redes: this.gatador.Redes,
+        Temporadas: this.gatador.Temporadas
       })
       this.closeDialog()
     }

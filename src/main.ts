@@ -16,15 +16,20 @@ Vue.use(VueMeta, {
 Vue.use(Vuetify)
 Vue.config.productionTip = false
 
-const config = {}
+const config = {
+
+}
 
 firebase.initializeApp(config)
 
-new Vue ({
+let appVue = new Vue ({
   el: '#app',
   router,
   store,
   vuetify: new Vuetify({
+    theme: {
+      dark: true
+    },
     icons: {
       iconfont: 'md'
     }

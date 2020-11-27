@@ -1,4 +1,4 @@
-import { gatadorType } from '@/typings'
+import { gatadorType, sedeType } from '@/typings'
 import firebase from 'firebase'
 
 export default {
@@ -91,6 +91,17 @@ export default {
           dispatch('addNotificacion', { text: 'No se pudo actualizar el gatador', type: 'error' })
           return false
         })
+    },
+    saveGatador ({ dispatch }, gatador:gatadorType) {
+      return firebase.firestore().collection('gatadores').add(gatador)
+        .then(data => {
+          return true
+        })
+        .catch(err => {
+          console.error(err)
+          dispatch('addNotificacion', { text: 'No se puedo crear la gatada', type: 'error' })
+          return false
+        })
     }
   },
   getters: {
@@ -102,6 +113,22 @@ export default {
       return state.gatadores.find(gat => {
         return gat.Id === idBusqueda
       })
+    },
+    getGatadoresTemporada: (state, getters) => (uuid?:string, nombre?:string) => {
+      let temporada:sedeType = undefined
+      if (uuid && uuid.length > 0) {
+        temporada = getters.getSedes.find(t => t.Uuid === uuid)
+      } else if (nombre && nombre.length > 0) {
+        temporada = getters.getSedes.find(t => t.Nombre === nombre)
+      } else {
+        temporada = getters.getSedeActual
+      }
+      if (temporada) {
+        return state.gatadores.filter(g => {
+          return g.Temporadas.indexOf(temporada.Uuid) >= 0
+        })
+      }
+      return getters.getGatadores
     }
   }
 }

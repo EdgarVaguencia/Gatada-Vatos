@@ -94,10 +94,13 @@ export default {
     }
   },
   getters: {
-    getSedes: (state) => {
+    getSedes: state => {
       return state.sedes.filter(s => {
         return s.Delete === false
       })
+    },
+    getSedeActual: state => {
+      return state.sedes.find(s => s.Actual === true)
     }
   }
 }

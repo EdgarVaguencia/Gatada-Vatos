@@ -85,7 +85,7 @@ export default class Home extends Vue {
   }
 
   get gatadores() {
-    return this.$store.getters.getGatadores
+    return this.$store.getters.getGatadoresTemporada()
   }
 
   get imgSelect() {
@@ -95,7 +95,7 @@ export default class Home extends Vue {
 
   get nameSelect() {
     let name = this.gatadores[this.selectGatador] ? this.gatadores[this.selectGatador].Nombre : ''
-    
+
     if (this.gatadores[this.selectGatador] && !this.gatadores[this.selectGatador].Activo) name += ' / == RIP =='
 
     return name
