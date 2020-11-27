@@ -51,16 +51,15 @@ export default {
       if (info.Uuid && info.Uuid.length > 0) {
         return dispatch('updateSede', info)
       }
-      return firebase.firestore().collection('sedes')
-        .add(info)
-          .then(docId => {
-            return true
-          })
-          .catch(err => {
-            console.error(err)
-            dispatch('addNotificacion', { text: 'No se pudo crear la sede', type: 'error' })
-            return false
-          })
+      return firebase.firestore().collection('sedes').add(info)
+        .then(docId => {
+          return true
+        })
+        .catch(err => {
+          console.error(err)
+          dispatch('addNotificacion', { text: 'No se pudo crear la sede', type: 'error' })
+          return false
+        })
     },
     updateSede ({ dispatch }, sede) {
       let sedeDoc = firebase.firestore().collection('sedes').doc(sede.Uuid)

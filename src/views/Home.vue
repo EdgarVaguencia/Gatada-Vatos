@@ -80,10 +80,6 @@ import { Component, Vue } from 'vue-property-decorator'
 export default class Home extends Vue {
   selectGatador = 0
 
-  updateGatador(index:any) {
-    this.selectGatador = index
-  }
-
   get gatadores() {
     return this.$store.getters.getGatadoresTemporada()
   }
@@ -106,6 +102,14 @@ export default class Home extends Vue {
       return this.gatadores[this.selectGatador].Activo
     }
     return false
+  }
+
+  get temporadaActual() {
+    return this.$store.getters.getSedeActual
+  }
+
+  updateGatador(index:any) {
+    this.selectGatador = index
   }
 }
 </script>

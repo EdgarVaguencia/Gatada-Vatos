@@ -26,3 +26,11 @@ export default class AppNavPublic extends Vue {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.theme--light.v-app-bar.v-toolbar.v-sheet
+  background-color #272727
+
+.v-btn
+  color #fff
+</style>

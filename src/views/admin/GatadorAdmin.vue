@@ -185,6 +185,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { gatadorType, sedeType } from '@/typings'
+import { compile } from 'vue/types/umd'
 
 @Component
 export default class GatadorAdmin extends Vue {
@@ -274,8 +275,10 @@ export default class GatadorAdmin extends Vue {
         Activo: true,
         Redes: this.gatador.Redes,
         Temporadas: this.gatador.Temporadas
+      }).then(complete => {
+        this.isLoading = false
+        this.closeDialog()
       })
-      this.closeDialog()
     }
   }
 }

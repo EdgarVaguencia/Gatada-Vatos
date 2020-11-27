@@ -18,7 +18,7 @@ export default {
       if (!gato) state.gatadores.push(gatador)
     },
     UPDATE_GATADOR (state, info) {
-      let gatador = state.gatadores.find(g => g.Id === info.data.Uuid)
+      let gatador = state.gatadores.find(g => g.Id === info.data.Id)
 
       if (gatador) {
         gatador.Nombre = info.data.Nombre

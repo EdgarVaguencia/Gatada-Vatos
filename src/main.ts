@@ -27,9 +27,6 @@ let appVue = new Vue ({
   router,
   store,
   vuetify: new Vuetify({
-    theme: {
-      dark: true
-    },
     icons: {
       iconfont: 'md'
     }

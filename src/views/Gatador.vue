@@ -130,7 +130,7 @@
             >
               <v-card-title
                 class="headline"
-                v-text="gatador.Nombre"
+                v-text="gatadorName"
               ></v-card-title>
               <v-list
                 color="grey lighten-3"
@@ -196,7 +196,7 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component({
   metaInfo () {
     return {
-      title: 'Gatador :: ' + this.gatador.Nombre
+      title: 'Gatador :: ' + this.gatadorName
     }
   }
 })
@@ -226,6 +226,10 @@ export default class Gatador extends Vue {
 
   get puntosGatador() {
     return this.$store.getters.getPuntosGatador
+  }
+
+  get gatadorName() {
+    return this.gatador ? this.gatador.Nombre : ''
   }
 
   imgGatador (idGatador:number) {

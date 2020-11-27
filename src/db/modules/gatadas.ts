@@ -104,9 +104,10 @@ export default {
         return g.Delete === false
       })
     },
-    getGatadas: (state) => (idGatador) => {
+    getGatadas: (state, getters) => (idGatador) => {
+      let temporadaActual = getters.getSedeActual
       return state.gatadas.filter(gatada => {
-        return gatada.Delete === false && (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador)
+        return gatada.Delete === false && (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador) && gatada.Temporada === temporadaActual.Uuid
       })
     },
     getNumGatadas: (state, getters) => {

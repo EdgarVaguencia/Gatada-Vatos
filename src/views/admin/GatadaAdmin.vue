@@ -347,6 +347,7 @@ export default class GatadaAdmin extends Vue {
   @Watch('getGatadas', { immediate:true })
   updateListGatadas() {
     this.gatadas = this.getGatadas
+    if (this.temporadaSelect.length > 0) this.filtroTemporada(this.temporadaSelect, '')
   }
 
   @Watch('gatadorSelect')
@@ -404,9 +405,9 @@ export default class GatadaAdmin extends Vue {
 
   @Watch('temporadaSelect')
   filtroTemporada(value, oldValue) {
-    if (this.temporadaSelect.length > 0) {
+    if (value.length > 0) {
       this.gatadas = this.getGatadas.filter(g => {
-        return g.Temporada === this.temporadaSelect
+        return g.Temporada === value
       })
     }
   }
