@@ -12,10 +12,6 @@ export interface gatadaType {
   Temporada:string
 }
 
-interface temporadaGatador {
-  TemporadaUuid:string
-}
-
 export interface gatadorType {
   Uuid?:string
   Id?:number
@@ -27,7 +23,7 @@ export interface gatadorType {
     Youtube?:string
   }
   Activo?:boolean
-  Temporadas?:temporadaGatador[]
+  Temporadas?:sedeType['Uuid'][]
 }
 
 export interface sedeType {

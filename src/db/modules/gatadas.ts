@@ -105,7 +105,7 @@ export default {
       })
     },
     getGatadas: (state, getters) => (idGatador) => {
-      let temporadaActual = getters.getSedeActual
+      let temporadaActual = getters.getTemporada
       return state.gatadas.filter(gatada => {
         return gatada.Delete === false && (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador) && gatada.Temporada === temporadaActual.Uuid
       })

@@ -6,12 +6,16 @@
     <template
       v-for="(item, index) in sedes"
     >
-      <v-btn
-        text
+      <router-link
         :key="index"
+        :to="{ name: 'Temporada', params: { temporada: temporadaLink(item.Nombre) }}"
       >
-        {{ item.Nombre }}
-      </v-btn>
+        <v-btn
+          text
+        >
+          {{ item.Nombre }}
+        </v-btn>
+      </router-link>
     </template>
   </v-app-bar>
 </template>
@@ -22,12 +26,20 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class AppNavPublic extends Vue {
   get sedes() {
-    return this.$store.getters.getSedes.filter(s => s.Actual)
+    return this.$store.getters.getSedes //.filter(s => s.Actual)
+  }
+
+  temporadaLink(name:string) {
+    if (!name) return ''
+    return name.replaceAll(' ', '-')
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+a
+  text-decoration none
+
 .theme--light.v-app-bar.v-toolbar.v-sheet
   background-color #272727
 

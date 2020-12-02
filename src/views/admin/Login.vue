@@ -18,7 +18,7 @@
       <v-col
         v-else
         cols="12"
-        md="6"
+        md="4"
       >
         <v-text-field
           label="Correo"

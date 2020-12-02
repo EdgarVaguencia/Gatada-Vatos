@@ -8,7 +8,7 @@
         class="d-flex"
       >
         <router-link
-          :to="{ name: 'Home'}"
+          :to="{ name: 'Temporada', params: temporadaLink }"
         >
           <v-icon
             large
@@ -129,7 +129,7 @@
               sm="4"
             >
               <v-card-title
-                class="headline"
+                class="headline text-break"
                 v-text="gatadorName"
               ></v-card-title>
               <v-list
@@ -164,19 +164,27 @@
                   >
                     <td>{{ gatada.Jornada }}</td>
                     <td>
-                      <v-avatar>
-                        <v-img
-                          :src="imgGatador(gatada.PrimerGatador)"
-                        ></v-img>
-                      </v-avatar>
+                      <router-link
+                        :to="{ name: 'Gatador', params: { id: gatada.PrimerGatador }}"
+                      >
+                        <v-avatar>
+                          <v-img
+                            :src="imgGatador(gatada.PrimerGatador)"
+                          ></v-img>
+                        </v-avatar>
+                      </router-link>
                     </td>
                     <td>{{gatada.Resultado.PrimerGatador}} - {{gatada.Resultado.SegundoGatador}}</td>
                     <td>
-                      <v-avatar>
-                        <v-img
-                          :src="imgGatador(gatada.SegundoGatador)"
-                        ></v-img>
-                      </v-avatar>
+                      <router-link
+                        :to="{ name: 'Gatador', params: { id: gatada.SegundoGatador }}"
+                      >
+                        <v-avatar>
+                          <v-img
+                            :src="imgGatador(gatada.SegundoGatador)"
+                          ></v-img>
+                        </v-avatar>
+                      </router-link>
                     </td>
                   </tr>
                 </tbody>
@@ -190,8 +198,8 @@
 </template>
 
 <script lang="ts">
-import { gatadorType } from '@/typings'
-import { Component, Vue } from 'vue-property-decorator'
+import { gatadorType, sedeType } from '@/typings'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
   metaInfo () {
@@ -201,6 +209,7 @@ import { Component, Vue } from 'vue-property-decorator'
   }
 })
 export default class Gatador extends Vue {
+
   get gatador ():gatadorType {
     return this.$store.getters.getGatador()
   }
@@ -232,6 +241,20 @@ export default class Gatador extends Vue {
     return this.gatador ? this.gatador.Nombre : ''
   }
 
+  get temporadaSelect():sedeType {
+    return this.$store.getters.getTemporada
+  }
+
+  get temporadaLink() {
+    return this.temporadaSelect ? this.temporadaSelect.Nombre.replaceAll(' ', '-') : ''
+  }
+
+  @Watch('$route', { immediate:true })
+  beforeRouteUpdate(to, from) {
+    this.$store.dispatch('setGatador', { id: to.params.id })
+    this.$store.dispatch('setTemporada', to.params.temporada)
+  }
+
   imgGatador (idGatador:number) {
     let gatador = this.$store.getters.getGatador(idGatador)
     return gatador.Imagen
@@ -250,7 +273,7 @@ export default class Gatador extends Vue {
         url = 'https://www.youtube.com/results?search_query=' + this.gatador.Redes.Youtube
         break
       default:
-        url = 'https://duckduckgo.com/?q=' + this.gatador.Nombre
+        url = 'https://duckduckgo.com/?q=' + this.gatadorName
         break
     }
     window.open(url,'_blank')

@@ -218,7 +218,7 @@ export default class GatadorAdmin extends Vue {
   }
 
   @Watch('temporadaSelect')
-  filtroTemporada(value, oldValue) {
+  filtroTemporada(value:string, oldValue:string) {
     if (value.length > 0) {
       this.gatadores = this.getGatadores.filter(g => {
         return g.Temporadas.indexOf(value) >= 0

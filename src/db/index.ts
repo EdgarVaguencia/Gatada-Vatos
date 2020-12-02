@@ -4,30 +4,20 @@ import gatador from '@/db/modules/gatador'
 import gatadas from '@/db/modules/gatadas'
 import notificacion from '@/db/modules/notificacion'
 import user from '@/db/modules/user'
-import sedes from '@/db/modules/sedes'
+import temporada from '@/db/modules/sedes'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  state: {
-    selectGatador: 0
-  },
-  mutations: {
-    SET_CURRENT_GATADOR (state, gatadorObj) {
-      state.selectGatador = parseInt(gatadorObj.id)
-    }
-  },
+  state: {},
+  mutations: {},
   actions: {},
-  getters: {
-    getSelected: (state) => {
-      return state.selectGatador
-    }
-  },
+  getters: {},
   modules: {
     gatador,
     gatadas,
     notificacion,
     user,
-    sedes
+    temporada
   }
 })

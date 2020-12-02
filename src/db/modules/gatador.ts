@@ -4,7 +4,8 @@ import firebase from 'firebase'
 export default {
   state: {
     gatadores: [],
-    gatador: {}
+    gatador: {},
+    selectGatador: 0
   },
   mutations: {
     RESET_GATADORES (state) {
@@ -22,7 +23,7 @@ export default {
 
       if (gatador) {
         gatador.Nombre = info.data.Nombre
-        gatador.Images = info.data.Imagen
+        gatador.Imagen = info.data.Imagen
         gatador.Activo = info.data.Activo
         gatador.Redes = info.data.Redes ? info.data.Redes : {}
         gatador.Temporadas = info.data.Temporadas
@@ -33,6 +34,9 @@ export default {
     },
     SET_GATADOR (state, gatador) {
       state.gatador = gatador
+    },
+    SET_CURRENT_GATADOR (state, gatadorObj) {
+      state.selectGatador = parseInt(gatadorObj.id)
     }
   },
   actions: {
@@ -102,6 +106,9 @@ export default {
           dispatch('addNotificacion', { text: 'No se puedo crear la gatada', type: 'error' })
           return false
         })
+    },
+    setGatador ({ commit }, data) {
+      commit('SET_CURRENT_GATADOR', data)
     }
   },
   getters: {
@@ -110,18 +117,17 @@ export default {
     },
     getGatador: (state, getters) => (idGatador = 0) => {
       let idBusqueda = idGatador !== 0 ? idGatador : getters.getSelected
-      return state.gatadores.find(gat => {
-        return gat.Id === idBusqueda
-      })
+      console.info(idBusqueda)
+      return state.gatadores.find(gat => gat.Id === idBusqueda)
     },
     getGatadoresTemporada: (state, getters) => (uuid?:string, nombre?:string) => {
       let temporada:sedeType = undefined
       if (uuid && uuid.length > 0) {
-        temporada = getters.getSedes.find(t => t.Uuid === uuid)
+        temporada = getters.getTemporada.find(t => t.Uuid === uuid)
       } else if (nombre && nombre.length > 0) {
-        temporada = getters.getSedes.find(t => t.Nombre === nombre)
+        temporada = getters.getTemporada.find(t => t.Nombre === nombre)
       } else {
-        temporada = getters.getSedeActual
+        temporada = getters.getTemporadaActual
       }
       if (temporada) {
         return state.gatadores.filter(g => {
@@ -129,6 +135,9 @@ export default {
         })
       }
       return getters.getGatadores
+    },
+    getSelected: (state) => {
+      return state.selectGatador
     }
   }
 }

@@ -17,9 +17,6 @@ export default {
       firebase.auth().onAuthStateChanged(isUser => {
         if (isUser && isUser !== null) {
           commit('SET_USER', isUser.toJSON())
-          dispatch('fectchGatadas')
-          dispatch('fetchGatadores')
-          dispatch('fetchSedes')
         }
       })
     },

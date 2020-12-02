@@ -48,7 +48,7 @@
           @mouseover="updateGatador(i)"
         >
           <router-link
-          :to="{ name: 'Gatador', params: { id: g.Id }}"
+            :to="{ name: 'Gatador', params: { id: g.Id, temporada: temporadaLink }}"
           >
             <v-avatar
               tile
@@ -68,7 +68,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { gatadaType, gatadorType, sedeType } from '@/typings'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
   metaInfo () {
@@ -78,18 +79,19 @@ import { Component, Vue } from 'vue-property-decorator'
   }
 })
 export default class Home extends Vue {
-  selectGatador = 0
+  selectGatador:number = 0
+  gatadores:gatadorType[] = []
 
-  get gatadores() {
-    return this.$store.getters.getGatadoresTemporada()
+  get getGatadores():gatadorType[] {
+    return this.$store.getters.getGatadores
   }
 
-  get imgSelect() {
+  get imgSelect():string {
     if (this.gatadores.length > 0) return this.gatadores[this.selectGatador].Imagen
     return ''
   }
 
-  get nameSelect() {
+  get nameSelect():string {
     let name = this.gatadores[this.selectGatador] ? this.gatadores[this.selectGatador].Nombre : ''
 
     if (this.gatadores[this.selectGatador] && !this.gatadores[this.selectGatador].Activo) name += ' / == RIP =='
@@ -97,15 +99,37 @@ export default class Home extends Vue {
     return name
   }
 
-  get gatadorActivo() {
+  get gatadorActivo():boolean {
     if (this.gatadores.length > 0) {
       return this.gatadores[this.selectGatador].Activo
     }
     return false
   }
 
-  get temporadaActual() {
-    return this.$store.getters.getSedeActual
+  get temporadaSelect():sedeType {
+    return this.$store.getters.getTemporada
+  }
+
+  get temporadaLink() {
+    return this.temporadaSelect.Nombre.replaceAll(' ', '-')
+  }
+
+  @Watch('getGatadores', { immediate:true })
+  updateListaGatadores() {
+    let temporada:string = this.temporadaSelect ? this.temporadaSelect.Uuid : ''
+
+    this.gatadores = this.getGatadores.filter(g => {
+      return g.Temporadas.indexOf(temporada) >= 0
+    })
+  }
+
+  @Watch('$route', { immediate:true })
+  beforeRouteUpdate(to, from) {
+    this.$store.dispatch('setTemporada', to.params.temporada)
+      .then(_ => {
+        this.selectGatador = 0
+        this.updateListaGatadores()
+      })
   }
 
   updateGatador(index:any) {

@@ -33,13 +33,7 @@ import AppNavPublic from '@/components/AppNavPublic.vue'
     AppNavPublic
   }
 })
-export default class App extends Vue {
-  created () {
-    this.$store.dispatch('fetchGatadores')
-    this.$store.dispatch('fectchGatadas')
-    this.$store.dispatch('fetchSedes')
-  }
-}
+export default class App extends Vue {}
 </script>
 
 <style lang="stylus">

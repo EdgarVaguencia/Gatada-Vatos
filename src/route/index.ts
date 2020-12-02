@@ -10,19 +10,34 @@ const routes: Array<RouteConfig> = [
     component: () => import('@/layouts/Public.vue'),
     children: [
       {
-        path: '/',
+        path: '',
         name: 'Home',
         component: () => import('@/views/Home.vue')
       },
       {
-        path: '/gatador/:id',
+        path: 'temporada/:temporada',
+        name: 'Temporada',
+        component: () => import('@/views/Home.vue'),
+        // beforeEnter: (to, from, next) => {
+        //   console.info('Route temporada index')
+        //   store.dispatch('setTemporada', to.params.temporada)
+        //     .then(_ => {
+        //       next()
+        //     })
+        // },
+      },
+      {
+        path: ':temporada/gatador/:id',
         name: 'Gatador',
         component: () => import('@/views/Gatador.vue'),
-        beforeEnter: (to, from, next) => {
-          store.commit('SET_CURRENT_GATADOR', {id: to.params.id})
-          next()
-        }
-      },
+        // beforeEnter: (to, from, next) => {
+        //   console.info('Route gatador index')
+        //   store.dispatch('setGatador', { id: to.params.id })
+        //     .then(_ => {
+        //       next()
+        //     })
+        // }
+      }
     ]
   },
   {

@@ -25,7 +25,7 @@
         <v-autocomplete
           multiple
           clearable
-          label="Filtra Gatadas"
+          label="Filtra gatador"
           v-model="gatadorSelect"
           :items="gatadores"
           item-text="Nombre"

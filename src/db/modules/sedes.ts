@@ -1,35 +1,40 @@
+import { sedeType } from '@/typings'
 import firebase from 'firebase'
 
 export default {
   state: {
-    sedes: []
+    temporadas: [],
+    nombreTemporada: ''
   },
   mutations: {
-    RESET_SEDES (state) {
-      state.sedes = []
+    RESET_TEMPORADA (state) {
+      state.temporadas = []
     },
-    ADD_SEDE (state, sedeDoc) {
-      let sede = state.sedes.find(s => s.Uuid === sedeDoc.Uuid)
+    ADD_Temporada (state, temporadaDoc) {
+      let temporada = state.temporadas.find(s => s.Uuid === temporadaDoc.Uuid)
 
-      if (!sede) state.sedes.push(sedeDoc)
+      if (!temporada) state.temporadas.push(temporadaDoc)
     },
-    UPDATE_SEDE (state, sedeDoc) {
-      let sede = state.sedes.find(s => s.Uuid === sedeDoc.Uuid)
+    UPDATE_TEMPORADA (state, temporadaDoc) {
+      let temporada = state.temporadas.find((s:sedeType) => s.Uuid === temporadaDoc.Uuid)
 
-      if (sede) {
-        sede.Nombre = sedeDoc.Nombre
-        sede.Descripcion = sedeDoc.Description
-        sede.Delete = sedeDoc.Delete
-        sede.Actual = sedeDoc.Actual
+      if (temporada) {
+        temporada.Nombre = temporadaDoc.Nombre
+        temporada.Descripcion = temporadaDoc.Description
+        temporada.Delete = temporadaDoc.Delete
+        temporada.Actual = temporadaDoc.Actual
       }
     },
-    REMOVE_SEDE (state, index) {
-      state.sedes.splice(index, 1)
+    REMOVE_TEMPORADA (state, index) {
+      state.temporadas.splice(index, 1)
+    },
+    SET_CURRENT_TEMPORADA (state, temporadaName:string) {
+      if (temporadaName !== state.nombreTemporada) state.nombreTemporada = temporadaName
     }
   },
   actions: {
     fetchSedes ({ commit, dispatch }) {
-      commit('RESET_SEDES')
+      commit('RESET_TEMPORADA')
       firebase.firestore().collection('sedes')
         .onSnapshot(query => {
           query.docChanges().forEach(change => {
@@ -37,19 +42,19 @@ export default {
             let data = doc.data()
             data['Uuid'] = doc.id
             if (type === 'added') {
-              commit('ADD_SEDE', data)
+              commit('ADD_Temporada', data)
             } else if (type === 'modified') {
-              commit('UPDATE_GATADA', { data: data, sede: newIndex })
+              commit('UPDATE_TEMPORADA', { data: data, sede: newIndex })
               dispatch('addNotificacion', { text: 'Sede Actualizada', type: 'success' })
             } else if (type === 'removed') {
-              commit('REMOVE_SEDE', oldIndex)
+              commit('REMOVE_TEMPORADA', oldIndex)
             }
           })
         })
     },
-    saveSede ({ dispatch }, info) {
+    saveTemporada ({ dispatch }, info) {
       if (info.Uuid && info.Uuid.length > 0) {
-        return dispatch('updateSede', info)
+        return dispatch('updateTemporada', info)
       }
       return firebase.firestore().collection('sedes').add(info)
         .then(docId => {
@@ -61,10 +66,10 @@ export default {
           return false
         })
     },
-    updateSede ({ dispatch }, sede) {
-      let sedeDoc = firebase.firestore().collection('sedes').doc(sede.Uuid)
+    updateTemporada ({ dispatch }, sede) {
+      let temporadaDoc = firebase.firestore().collection('sedes').doc(sede.Uuid)
 
-      return sedeDoc.update({
+      return temporadaDoc.update({
         Nombre: sede.Nombre,
         Descripcion: sede.Descripcion
       })
@@ -77,10 +82,10 @@ export default {
           return false
         })
     },
-    removeSede ({ dispatch }, sedeUuid) {
-      let sedeDoc = firebase.firestore().collection('sedes').doc(sedeUuid)
+    removeTemporada ({ dispatch }, sedeUuid) {
+      let temporadaDoc = firebase.firestore().collection('sedes').doc(sedeUuid)
 
-      sedeDoc.update({
+      temporadaDoc.update({
         Delete: true
       })
         .then(data => {
@@ -90,16 +95,23 @@ export default {
           console.error(err)
           dispatch('addNotificacion', { text: 'No se pudo eliminar la sede', type: 'error' })
         })
+    },
+    setTemporada( { commit }, temporada) {
+      commit('SET_CURRENT_TEMPORADA', temporada)
     }
   },
   getters: {
     getSedes: state => {
-      return state.sedes.filter(s => {
+      return state.temporadas.filter(s => {
         return s.Delete === false
       })
     },
-    getSedeActual: state => {
-      return state.sedes.find(s => s.Actual === true)
+    getTemporadaActual: state => {
+      return state.temporadas.find(s => s.Actual === true)
+    },
+    getTemporada: (state, getters) => {
+      if (state.nombreTemporada.length > 0) return state.temporadas.find(t => t.Nombre === state.nombreTemporada.replaceAll('-', ' '))
+      return getters.getTemporadaActual
     }
   }
 }
