@@ -1,4 +1,4 @@
-import { gatadorType, sedeType } from '@/typings'
+import { gatadorType, temporadaType } from '@/typings'
 import firebase from 'firebase'
 
 export default {
@@ -62,7 +62,6 @@ export default {
       return firebase.firestore().collection('gatadores')
         .where('Id', '==', parseInt(idGatador))
         .onSnapshot(query => {
-          console.info(query)
           query.docChanges().forEach(change => {
             const { newIndex, oldIndex, doc, type } = change
             let data = doc.data()
@@ -117,11 +116,10 @@ export default {
     },
     getGatador: (state, getters) => (idGatador = 0) => {
       let idBusqueda = idGatador !== 0 ? idGatador : getters.getSelected
-      console.info(idBusqueda)
       return state.gatadores.find(gat => gat.Id === idBusqueda)
     },
     getGatadoresTemporada: (state, getters) => (uuid?:string, nombre?:string) => {
-      let temporada:sedeType = undefined
+      let temporada:temporadaType = undefined
       if (uuid && uuid.length > 0) {
         temporada = getters.getTemporada.find(t => t.Uuid === uuid)
       } else if (nombre && nombre.length > 0) {

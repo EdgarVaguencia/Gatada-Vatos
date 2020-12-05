@@ -4,7 +4,7 @@
   >
     <v-spacer></v-spacer>
     <template
-      v-for="(item, index) in sedes"
+      v-for="(item, index) in temporadas"
     >
       <router-link
         :key="index"
@@ -25,8 +25,8 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class AppNavPublic extends Vue {
-  get sedes() {
-    return this.$store.getters.getSedes //.filter(s => s.Actual)
+  get temporadas() {
+    return this.$store.getters.getTemporadas
   }
 
   temporadaLink(name:string) {

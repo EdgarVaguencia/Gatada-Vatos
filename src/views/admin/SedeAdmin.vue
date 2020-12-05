@@ -11,15 +11,13 @@
       >
         <v-list>
           <v-list-item
-            v-for="(item, index) in sedes"
+            v-for="(item, index) in temporadas"
             :key="index"
           >
             <v-list-item-icon>
               <v-icon
                 v-if="item.Actual"
-              >
-                star
-              </v-icon>
+              >star</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
@@ -32,7 +30,7 @@
             <v-list-item-action>
               <v-btn
                 icon
-                @click="editSede(item.Uuid)"
+                @click="editTemporada(item.Uuid)"
               >
                 <v-icon>create</v-icon>
               </v-btn>
@@ -62,15 +60,40 @@
           <v-card-text>
             <v-text-field
               label="Nombre"
-              v-model="sede.Nombre"
+              v-model="temporada.Nombre"
             ></v-text-field>
             <v-textarea
               label="Descripcion"
-              v-model="sede.Descripcion"
+              v-model="temporada.Descripcion"
             ></v-textarea>
+            <v-autocomplete
+              v-model="temporada.Ganador"
+              label="Ganador Temporada"
+              no-data-text="Gatadores no encontrados"
+              item-text="Nombre"
+              item-value="Uuid"
+              :loading="loadAutocompleteGatador"
+              :items="gatadoresItems"
+              :search-input.sync="searchAutocompleteGatador"
+            >
+              <template
+                v-slot:selection="data"
+              >
+                <v-chip
+                  v-bind="data.attrs"
+                  :input-value="data.selected"
+                  @click="data.select"
+                >
+                  <v-avatar left>
+                    <v-img :src="data.item.Imagen"></v-img>
+                  </v-avatar>
+                  {{ data.item.Nombre }}
+                </v-chip>
+              </template>
+            </v-autocomplete>
             <v-switch
               label="Activa"
-              v-model="sede.Actual"
+              v-model="temporada.Actual"
             ></v-switch>
           </v-card-text>
           <v-card-actions>
@@ -86,7 +109,7 @@
               text
               color="success"
               :loading="isLoading"
-              @click="saveSede"
+              @click="saveTemporada"
             >
               Guardar
             </v-btn>
@@ -98,54 +121,87 @@
 </template>
 
 <script lang="ts">
-import { sedeType } from '@/typings'
-import { Component, Vue } from 'vue-property-decorator'
+import { gatadorType, temporadaType } from '@/typings'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component
-export default class SedeAdmin extends Vue {
+export default class TemporadaAdmin extends Vue {
   dialog:boolean = false
   isLoading:boolean = false
-  tituloDialog:string = 'Nueva Sede'
-  sede: sedeType = {
+  loadAutocompleteGatador:boolean = false
+  tituloDialog:string = 'Nueva Temporada'
+  searchAutocompleteGatador:string = ''
+  temporada: temporadaType = {
     Nombre: '',
     Descripcion: '',
     Delete: false,
-    Actual: false
+    Actual: false,
+    Ganador: ''
+  }
+  gatadoresItems:gatadorType[] = []
+
+  get temporadas() {
+    return this.$store.getters.getTemporadas
   }
 
-  get sedes() {
-    return this.$store.getters.getSedes
+  get gatadores():gatadorType[] {
+    return this.$store.getters.getGatadores
   }
 
-  editSede(sedeUuid:string) {
-    this.sede = this.sedes.find(g => g.Uuid === sedeUuid)
-    if (this.sede) {
+  @Watch('searchAutocompleteGatador')
+  filtroGatador_1(value:string) {
+    let listaGatadores = this.gatadores
+
+    if (this.temporada.Uuid && this.temporada.Uuid !== '') {
+      listaGatadores = listaGatadores.filter(g => {
+        return g.Temporadas.indexOf(this.temporada.Uuid) >= 0
+      })
+    }
+
+    if (!value || value === '') {
+      this.gatadoresItems = listaGatadores
+      return
+    }
+
+    this.loadAutocompleteGatador = true
+
+    setTimeout(() => {
+      this.gatadoresItems = listaGatadores.filter(g => {
+        return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1
+      })
+      this.loadAutocompleteGatador = false
+    }, 500)
+  }
+
+  editTemporada(temporadaUuid:string) {
+    this.temporada = this.temporadas.find(g => g.Uuid === temporadaUuid)
+    if (this.temporada) {
       this.dialog = true
-      this.tituloDialog = 'Edita Sede'
+      this.tituloDialog = 'Edita Temporada'
     }
   }
 
   closeDialog() {
     this.isLoading = false
     this.dialog = false
-    this.sede = {
+    this.temporada = {
       Nombre: '',
       Descripcion: '',
       Delete: false,
       Actual: false
     }
-    this.tituloDialog = 'Nueva Sede'
+    this.tituloDialog = 'Nueva Temporada'
   }
 
-  saveSede() {
+  saveTemporada() {
     this.isLoading = true
-    if (this.sede.Uuid) {
-      this.$store.dispatch('updateSede', this.sede)
+    if (this.temporada.Uuid) {
+      this.$store.dispatch('updateTemporada', this.temporada)
         .finally(() => {
           this.closeDialog()
         })
     } else {
-      this.$store.dispatch('saveSede', this.sede)
+      this.$store.dispatch('saveTemporada', this.temporada)
         .finally(() => {
           this.closeDialog()
         })

@@ -1,4 +1,4 @@
-import { sedeType } from '@/typings'
+import { temporadaType } from '@/typings'
 import firebase from 'firebase'
 
 export default {
@@ -10,22 +10,22 @@ export default {
     RESET_TEMPORADA (state) {
       state.temporadas = []
     },
-    ADD_Temporada (state, temporadaDoc) {
+    ADD_Temporada (state, temporadaDoc:temporadaType) {
       let temporada = state.temporadas.find(s => s.Uuid === temporadaDoc.Uuid)
 
       if (!temporada) state.temporadas.push(temporadaDoc)
     },
     UPDATE_TEMPORADA (state, temporadaDoc) {
-      let temporada = state.temporadas.find((s:sedeType) => s.Uuid === temporadaDoc.Uuid)
+      let temporada = state.temporadas.find((s:temporadaType) => s.Uuid === temporadaDoc.data.Uuid)
 
       if (temporada) {
-        temporada.Nombre = temporadaDoc.Nombre
-        temporada.Descripcion = temporadaDoc.Description
-        temporada.Delete = temporadaDoc.Delete
-        temporada.Actual = temporadaDoc.Actual
+        temporada.Nombre = temporadaDoc.data.Nombre
+        temporada.Descripcion = temporadaDoc.data.Description
+        temporada.Delete = temporadaDoc.data.Delete
+        temporada.Actual = temporadaDoc.data.Actual
       }
     },
-    REMOVE_TEMPORADA (state, index) {
+    REMOVE_TEMPORADA (state, index:number) {
       state.temporadas.splice(index, 1)
     },
     SET_CURRENT_TEMPORADA (state, temporadaName:string) {
@@ -33,7 +33,7 @@ export default {
     }
   },
   actions: {
-    fetchSedes ({ commit, dispatch }) {
+    fetchTemporadas ({ commit, dispatch }) {
       commit('RESET_TEMPORADA')
       firebase.firestore().collection('sedes')
         .onSnapshot(query => {
@@ -44,15 +44,15 @@ export default {
             if (type === 'added') {
               commit('ADD_Temporada', data)
             } else if (type === 'modified') {
-              commit('UPDATE_TEMPORADA', { data: data, sede: newIndex })
-              dispatch('addNotificacion', { text: 'Sede Actualizada', type: 'success' })
+              commit('UPDATE_TEMPORADA', { data: data, temporada: newIndex })
+              dispatch('addNotificacion', { text: 'Temporada Actualizada', type: 'success' })
             } else if (type === 'removed') {
               commit('REMOVE_TEMPORADA', oldIndex)
             }
           })
         })
     },
-    saveTemporada ({ dispatch }, info) {
+    saveTemporada ({ dispatch }, info:temporadaType) {
       if (info.Uuid && info.Uuid.length > 0) {
         return dispatch('updateTemporada', info)
       }
@@ -62,46 +62,47 @@ export default {
         })
         .catch(err => {
           console.error(err)
-          dispatch('addNotificacion', { text: 'No se pudo crear la sede', type: 'error' })
+          dispatch('addNotificacion', { text: 'No se pudo crear la temporada', type: 'error' })
           return false
         })
     },
-    updateTemporada ({ dispatch }, sede) {
-      let temporadaDoc = firebase.firestore().collection('sedes').doc(sede.Uuid)
+    updateTemporada ({ dispatch }, temporada:temporadaType) {
+      let temporadaDoc = firebase.firestore().collection('sedes').doc(temporada.Uuid)
 
       return temporadaDoc.update({
-        Nombre: sede.Nombre,
-        Descripcion: sede.Descripcion
+        Nombre: temporada.Nombre,
+        Descripcion: temporada.Descripcion,
+        Ganador: temporada.Ganador
       })
         .then(data => {
           return true
         })
         .catch(err => {
           console.error(err)
-          dispatch('addNotificacion', { text: 'No se pudo actualizar la sede', type: 'error' })
+          dispatch('addNotificacion', { text: 'No se pudo actualizar la temporada', type: 'error' })
           return false
         })
     },
-    removeTemporada ({ dispatch }, sedeUuid) {
-      let temporadaDoc = firebase.firestore().collection('sedes').doc(sedeUuid)
+    removeTemporada ({ dispatch }, temporadaUuid:string) {
+      let temporadaDoc = firebase.firestore().collection('sedes').doc(temporadaUuid)
 
       temporadaDoc.update({
         Delete: true
       })
         .then(data => {
-          dispatch('addNotificacion', { text: 'Sede eliminada', type: 'warning' })
+          dispatch('addNotificacion', { text: 'Temporada eliminada', type: 'warning' })
         })
         .catch(err => {
           console.error(err)
-          dispatch('addNotificacion', { text: 'No se pudo eliminar la sede', type: 'error' })
+          dispatch('addNotificacion', { text: 'No se pudo eliminar la temporada', type: 'error' })
         })
     },
-    setTemporada( { commit }, temporada) {
+    setTemporada( { commit }, temporada:string) {
       commit('SET_CURRENT_TEMPORADA', temporada)
     }
   },
   getters: {
-    getSedes: state => {
+    getTemporadas: state => {
       return state.temporadas.filter(s => {
         return s.Delete === false
       })
@@ -110,7 +111,7 @@ export default {
       return state.temporadas.find(s => s.Actual === true)
     },
     getTemporada: (state, getters) => {
-      if (state.nombreTemporada.length > 0) return state.temporadas.find(t => t.Nombre === state.nombreTemporada.replaceAll('-', ' '))
+      if (state.nombreTemporada && state.nombreTemporada.length > 0) return state.temporadas.find(t => t.Nombre === state.nombreTemporada.replaceAll('-', ' '))
       return getters.getTemporadaActual
     }
   }

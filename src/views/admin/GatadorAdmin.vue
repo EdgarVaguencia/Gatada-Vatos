@@ -149,7 +149,7 @@
             <v-divider></v-divider>
             <v-row>
               <v-col
-                cols="12"
+                cols="6"
               >
                 <v-switch
                   v-model="gatador.Activo"
@@ -184,7 +184,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { gatadorType, sedeType } from '@/typings'
+import { gatadorType, temporadaType } from '@/typings'
 import { compile } from 'vue/types/umd'
 
 @Component
@@ -207,8 +207,8 @@ export default class GatadorAdmin extends Vue {
     return this.$store.getters.getGatadores
   }
 
-  get temporadas():sedeType[] {
-    return this.$store.getters.getSedes
+  get temporadas():temporadaType[] {
+    return this.$store.getters.getTemporadas
   }
 
   @Watch('getGatadores', { immediate:true })

@@ -23,13 +23,14 @@ export interface gatadorType {
     Youtube?:string
   }
   Activo?:boolean
-  Temporadas?:sedeType['Uuid'][]
+  Temporadas?:temporadaType['Uuid'][]
 }
 
-export interface sedeType {
+export interface temporadaType {
   Uuid?:string
   Nombre:string
   Descripcion:string
   Delete:boolean
   Actual:boolean
+  Ganador?:gatadorType['Uuid']
 }

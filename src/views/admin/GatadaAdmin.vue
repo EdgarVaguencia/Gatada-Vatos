@@ -299,7 +299,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { gatadaType, gatadorType, sedeType } from '@/typings'
+import { gatadaType, gatadorType, temporadaType } from '@/typings'
 
 @Component
 export default class GatadaAdmin extends Vue {
@@ -340,8 +340,8 @@ export default class GatadaAdmin extends Vue {
       })
   }
 
-  get temporadas():sedeType[] {
-    return this.$store.getters.getSedes
+  get temporadas():temporadaType[] {
+    return this.$store.getters.getTemporadas
   }
 
   @Watch('getGatadas', { immediate:true })
@@ -365,16 +365,25 @@ export default class GatadaAdmin extends Vue {
 
   @Watch('searchAutocompleteGatador_1')
   filtroGatador_1(value:string) {
-    if (!value || value == '') {
-      this.gatadoresItems_1 = this.gatadores.filter(g => {
+    let listaGatadores = this.gatadores
+
+    if (this.gata.Temporada && this.gata.Temporada !== '') {
+      listaGatadores = listaGatadores.filter(g => {
+        return g.Temporadas.indexOf(this.gata.Temporada) >= 0
+      })
+    }
+
+    if (!value || value === '') {
+      this.gatadoresItems_1 = listaGatadores.filter(g => {
         return this.gata.SegundoGatador !== g.Id
       })
       return
     }
 
     this.loadAutocompleteGatador_1 = true
+
     setTimeout(() => {
-      this.gatadoresItems_1 = this.gatadores.filter(g => {
+      this.gatadoresItems_1 = listaGatadores.filter(g => {
         return this.gata.SegundoGatador !== g.Id
       }).filter(g => {
         return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1
@@ -385,8 +394,16 @@ export default class GatadaAdmin extends Vue {
 
   @Watch('searchAutocompleteGatador_2')
   filtroGatador_2(value:string) {
+    let listaGatadores = this.gatadores
+
+    if (this.gata.Temporada && this.gata.Temporada !== '') {
+      listaGatadores = listaGatadores.filter(g => {
+        return g.Temporadas.indexOf(this.gata.Temporada) >= 0
+      })
+    }
+
     if (!value || value == '') {
-      this.gatadoresItems_2 = this.gatadores.filter(g => {
+      this.gatadoresItems_2 = listaGatadores.filter(g => {
         return this.gata.PrimerGatador !== g.Id
       })
       return
@@ -394,7 +411,7 @@ export default class GatadaAdmin extends Vue {
 
     this.loadAutocompleteGatador_2 = true
     setTimeout(() => {
-      this.gatadoresItems_2 = this.gatadores.filter(g => {
+      this.gatadoresItems_2 = listaGatadores.filter(g => {
         return this.gata.PrimerGatador !== g.Id
       }).filter(g => {
         return g.Nombre.toLowerCase().indexOf(value.toLowerCase()) > -1

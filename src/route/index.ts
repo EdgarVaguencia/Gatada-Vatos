@@ -66,8 +66,8 @@ const routes: Array<RouteConfig> = [
         }
       },
       {
-        path: 'sedes',
-        name: 'AdminSedes',
+        path: 'temporada',
+        name: 'AdminTemporada',
         component: () => import('../views/admin/SedeAdmin.vue'),
         meta: {
           auth: true

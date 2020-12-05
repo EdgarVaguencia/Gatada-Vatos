@@ -53,7 +53,7 @@
           </v-list-item>
           <v-list-item
             link
-            :to="{ name: 'AdminSedes'}"
+            :to="{ name: 'AdminTemporada'}"
           >
             <v-list-item-icon>
               <v-icon>military_tech</v-icon>

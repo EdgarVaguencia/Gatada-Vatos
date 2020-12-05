@@ -15,7 +15,7 @@ import Component from 'vue-class-component'
 @Component
 export default class App extends Vue {
   created () {
-    this.$store.dispatch('fetchSedes')
+    this.$store.dispatch('fetchTemporadas')
     this.$store.dispatch('fetchGatadores')
     this.$store.dispatch('fectchGatadas')
   }

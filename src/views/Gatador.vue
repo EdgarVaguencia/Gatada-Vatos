@@ -198,7 +198,7 @@
 </template>
 
 <script lang="ts">
-import { gatadorType, sedeType } from '@/typings'
+import { gatadorType, temporadaType } from '@/typings'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
@@ -241,7 +241,7 @@ export default class Gatador extends Vue {
     return this.gatador ? this.gatador.Nombre : ''
   }
 
-  get temporadaSelect():sedeType {
+  get temporadaSelect():temporadaType {
     return this.$store.getters.getTemporada
   }
 
