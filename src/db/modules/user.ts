@@ -13,17 +13,17 @@ export default {
     }
   },
   actions: {
-    getUser ({ commit, dispatch }) {
+    getUser ({ commit }) {
       firebase.auth().onAuthStateChanged(isUser => {
-        if (isUser && isUser !== null) {
+        if (isUser !== null) {
           commit('SET_USER', isUser.toJSON())
         }
       })
     },
-    logIn ({ dispatch }, params) {
-      return firebase.auth().setPersistence(auth.Auth.Persistence.LOCAL)
-        .then(_ => {
-          return auth().signInWithEmailAndPassword(params.email, params.password)
+    async logIn ({ dispatch }, params) {
+      return await firebase.auth().setPersistence(auth.Auth.Persistence.LOCAL)
+        .then(async () => {
+          return await auth().signInWithEmailAndPassword(params.email, params.password)
             .then(_ => {
               dispatch('addNotificacion', { text: 'Bienvenido', type: 'success' })
               dispatch('getUser')
@@ -39,8 +39,8 @@ export default {
           return false
         })
     },
-    logOut ({ commit, dispatch }) {
-      firebase.auth().signOut()
+    async logOut ({ commit, dispatch }) {
+      return await firebase.auth().signOut()
         .then(_ => {
           commit('RESET_USER')
           commit('RESET_GATADAS')
@@ -53,9 +53,8 @@ export default {
     }
   },
   getters: {
-    isLogin: state => {
-      if (state.user.uid && state.user.uid.length) return true
-      return false
+    isLogin: (state): boolean | null => {
+      return state.user.uid?.length
     }
   }
 }

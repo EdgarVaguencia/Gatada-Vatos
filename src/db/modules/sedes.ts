@@ -10,25 +10,25 @@ export default {
     RESET_TEMPORADA (state) {
       state.temporadas = []
     },
-    ADD_Temporada (state, temporadaDoc:temporadaType) {
-      let temporada = state.temporadas.find(s => s.Uuid === temporadaDoc.Uuid)
+    ADD_Temporada (state, temporadaDoc: temporadaType) {
+      const temporada: temporadaType = state.temporadas.find((s: temporadaType) => s.Uuid === temporadaDoc.Uuid)
 
-      if (!temporada) state.temporadas.push(temporadaDoc)
+      if (temporada === null) state.temporadas.push(temporadaDoc)
     },
     UPDATE_TEMPORADA (state, temporadaDoc) {
-      let temporada = state.temporadas.find((s:temporadaType) => s.Uuid === temporadaDoc.data.Uuid)
+      const temporada: temporadaType = state.temporadas.find((s: temporadaType) => s.Uuid === temporadaDoc.data.Uuid)
 
-      if (temporada) {
+      if (temporada !== null) {
         temporada.Nombre = temporadaDoc.data.Nombre
         temporada.Descripcion = temporadaDoc.data.Description
         temporada.Delete = temporadaDoc.data.Delete
         temporada.Actual = temporadaDoc.data.Actual
       }
     },
-    REMOVE_TEMPORADA (state, index:number) {
+    REMOVE_TEMPORADA (state, index: number) {
       state.temporadas.splice(index, 1)
     },
-    SET_CURRENT_TEMPORADA (state, temporadaName:string) {
+    SET_CURRENT_TEMPORADA (state, temporadaName: string) {
       if (temporadaName !== state.nombreTemporada) state.nombreTemporada = temporadaName
     }
   },
@@ -39,8 +39,8 @@ export default {
         .onSnapshot(query => {
           query.docChanges().forEach(change => {
             const { newIndex, oldIndex, doc, type } = change
-            let data = doc.data()
-            data['Uuid'] = doc.id
+            const data = doc.data()
+            data.Uuid = doc.id
             if (type === 'added') {
               commit('ADD_Temporada', data)
             } else if (type === 'modified') {
@@ -52,11 +52,11 @@ export default {
           })
         })
     },
-    saveTemporada ({ dispatch }, info:temporadaType) {
-      if (info.Uuid && info.Uuid.length > 0) {
+    async saveTemporada ({ dispatch }, info: temporadaType) {
+      if (info.Uuid?.length > 0) {
         return dispatch('updateTemporada', info)
       }
-      return firebase.firestore().collection('sedes').add(info)
+      return await firebase.firestore().collection('sedes').add(info)
         .then(docId => {
           return true
         })
@@ -66,10 +66,10 @@ export default {
           return false
         })
     },
-    updateTemporada ({ dispatch }, temporada:temporadaType) {
-      let temporadaDoc = firebase.firestore().collection('sedes').doc(temporada.Uuid)
+    async updateTemporada ({ dispatch }, temporada: temporadaType) {
+      const temporadaDoc = firebase.firestore().collection('sedes').doc(temporada.Uuid)
 
-      return temporadaDoc.update({
+      return await temporadaDoc.update({
         Nombre: temporada.Nombre,
         Descripcion: temporada.Descripcion,
         Ganador: temporada.Ganador
@@ -83,8 +83,8 @@ export default {
           return false
         })
     },
-    removeTemporada ({ dispatch }, temporadaUuid:string) {
-      let temporadaDoc = firebase.firestore().collection('sedes').doc(temporadaUuid)
+    removeTemporada ({ dispatch }, temporadaUuid: string) {
+      const temporadaDoc = firebase.firestore().collection('sedes').doc(temporadaUuid)
 
       temporadaDoc.update({
         Delete: true
@@ -97,21 +97,19 @@ export default {
           dispatch('addNotificacion', { text: 'No se pudo eliminar la temporada', type: 'error' })
         })
     },
-    setTemporada( { commit }, temporada:string) {
+    setTemporada ({ commit }, temporada: string) {
       commit('SET_CURRENT_TEMPORADA', temporada)
     }
   },
   getters: {
-    getTemporadas: state => {
-      return state.temporadas.filter(s => {
-        return s.Delete === false
-      })
+    getTemporadas: (state): temporadaType[] => {
+      return state.temporadas.filter((s: temporadaType) => !s.Delete)
     },
-    getTemporadaActual: state => {
-      return state.temporadas.find(s => s.Actual === true)
+    getTemporadaActual: (state): temporadaType => {
+      return state.temporadas.find((s: temporadaType) => s.Actual)
     },
-    getTemporada: (state, getters) => {
-      if (state.nombreTemporada && state.nombreTemporada.length > 0) return state.temporadas.find(t => t.Nombre === state.nombreTemporada.replaceAll('-', ' '))
+    getTemporada: (state, getters): temporadaType => {
+      if (state.nombreTemporada?.length > 0) return state.temporadas.find(t => t.Nombre === state.nombreTemporada.replaceAll('-', ' '))
       return getters.getTemporadaActual
     }
   }

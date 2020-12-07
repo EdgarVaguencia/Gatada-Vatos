@@ -1,4 +1,5 @@
 import firebase from 'firebase'
+import { gatadaType } from '@/typings'
 
 export default {
   state: {
@@ -8,15 +9,15 @@ export default {
     RESET_GATADAS (state) {
       state.gatadas = []
     },
-    ADD_GATADA (state, gatadaDoc) {
-      let gata = state.gatadas.find(g => g.Uuid === gatadaDoc.Uuid)
+    ADD_GATADA (state, gatadaDoc: gatadaType) {
+      const gata: gatadaType | null = state.gatadas.find((g: gatadaType) => g.Uuid === gatadaDoc.Uuid)
 
-      if (!gata) state.gatadas.push(gatadaDoc)
+      if (gata === null) state.gatadas.push(gatadaDoc)
     },
     UPDATE_GATADA (state, info) {
-      let gatada = state.gatadas.find(g => g.Uuid === info.data.Uuid)
+      const gatada: gatadaType | null = state.gatadas.find((g: gatadaType) => g.Uuid === info.data.Uuid)
 
-      if (gatada) {
+      if (gatada !== null) {
         gatada.PrimerGatador = info.data.PrimerGatador
         gatada.SegundoGatador = info.data.SegundoGatador
         gatada.Fecha = info.data.Fecha
@@ -25,7 +26,7 @@ export default {
         gatada.Delete = info.data.Delete
       }
     },
-    REMOVE_GATADA (state, index) {
+    REMOVE_GATADA (state, index: number) {
       state.gatadas.splice(index, 1)
     }
   },
@@ -36,8 +37,8 @@ export default {
         .onSnapshot(query => {
           query.docChanges().forEach(change => {
             const { newIndex, oldIndex, doc, type } = change
-            let data = doc.data()
-            data['Uuid'] = doc.id
+            const data = doc.data()
+            data.Uuid = doc.id
             if (type === 'added') {
               commit('ADD_GATADA', data)
             } else if (type === 'modified') {
@@ -49,12 +50,12 @@ export default {
           })
         })
     },
-    saveGatada ({ dispatch }, info) {
-      if (info.Uuid && info.Uuid.length > 0) {
+    async saveGatada ({ dispatch }, info: gatadaType) {
+      if (info.Uuid?.length > 0) {
         return dispatch('updateGatada', info)
       }
-      return firebase.firestore().collection('gatadas').add(info)
-        .then(docId => {
+      return await firebase.firestore().collection('gatadas').add(info)
+        .then(_ => {
           return true
         })
         .catch(err => {
@@ -63,10 +64,10 @@ export default {
           return false
         })
     },
-    updateGatada ({ dispatch }, gatada) {
-      let gatadaDoc = firebase.firestore().collection('gatadas').doc(gatada.Uuid)
+    async updateGatada ({ dispatch }, gatada: gatadaType) {
+      const gatadaDoc = firebase.firestore().collection('gatadas').doc(gatada.Uuid)
 
-      return gatadaDoc.update({
+      return await gatadaDoc.update({
         PrimerGatador: gatada.PrimerGatador,
         SegundoGatador: gatada.SegundoGatador,
         Fecha: gatada.Fecha,
@@ -74,7 +75,7 @@ export default {
         Jornada: gatada.Jornada,
         Temporada: gatada.Temporada
       })
-        .then(data => {
+        .then(_ => {
           return true
         })
         .catch(err => {
@@ -83,13 +84,13 @@ export default {
           return false
         })
     },
-    removeGatada ({ dispatch }, gatadaUuid) {
-      let gatadaDoc = firebase.firestore().collection('gatadas').doc(gatadaUuid)
+    removeGatada ({ dispatch }, gatadaUuid: string) {
+      const gatadaDoc = firebase.firestore().collection('gatadas').doc(gatadaUuid)
 
       gatadaDoc.update({
         Delete: true
       })
-        .then(data => {
+        .then(_ => {
           dispatch('addNotificacion', { text: 'Gatada eliminada', type: 'warning' })
         })
         .catch(err => {
@@ -99,36 +100,36 @@ export default {
     }
   },
   getters: {
-    getAllGatadas: (state) => {
+    getAllGatadas: (state): gatadaType[] => {
       return state.gatadas.filter(g => {
         return g.Delete === false
       })
     },
-    getGatadas: (state, getters) => (idGatador) => {
-      let temporadaActual = getters.getTemporada
-      return state.gatadas.filter(gatada => {
-        return gatada.Delete === false && (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador) && gatada.Temporada === temporadaActual.Uuid
+    getGatadas: (state, getters) => (idGatador: number): gatadaType[] => {
+      const temporadaActual = getters.getTemporada
+      return state.gatadas.filter((gatada: gatadaType) => {
+        return !gatada.Delete && (gatada.PrimerGatador === idGatador || gatada.SegundoGatador === idGatador) && gatada.Temporada === temporadaActual.Uuid
       })
     },
-    getNumGatadas: (state, getters) => {
-      let gatadas = getters.getGatadas(getters.getSelected)
+    getNumGatadas: (state, getters): number => {
+      const gatadas: gatadaType[] = getters.getGatadas(getters.getSelected)
       return gatadas.length
     },
-    getNumGatadasVictoria: (state, getters) => {
-      let gatadas = getters.getGatadas(getters.getSelected).filter((gatada) => {
+    getNumGatadasVictoria: (state, getters): number => {
+      const gatadas = getters.getGatadas(getters.getSelected).filter((gatada: gatadaType) => {
         return (gatada.PrimerGatador === getters.getSelected && gatada.Resultado.PrimerGatador > gatada.Resultado.SegundoGatador) || (gatada.SegundoGatador === getters.getSelected && gatada.Resultado.SegundoGatador > gatada.Resultado.PrimerGatador)
       })
       return gatadas.length
     },
-    getNumGatadasDerrota: (state, getters) => {
-      let gatadas = getters.getGatadas(getters.getSelected).filter(gatada => {
+    getNumGatadasDerrota: (state, getters): number => {
+      const gatadas = getters.getGatadas(getters.getSelected).filter((gatada: gatadaType) => {
         return (gatada.PrimerGatador === getters.getSelected && gatada.Resultado.PrimerGatador < gatada.Resultado.SegundoGatador) || (gatada.SegundoGatador === getters.getSelected && gatada.Resultado.SegundoGatador < gatada.Resultado.PrimerGatador)
       })
       return gatadas.length
     },
-    getPuntosGatador: (state, getters) => {
-      let puntos = 0
-      getters.getGatadas(getters.getSelected).forEach(gatada => {
+    getPuntosGatador: (state, getters): number => {
+      let puntos: number = 0
+      getters.getGatadas(getters.getSelected).forEach((gatada: gatadaType) => {
         if (gatada.PrimerGatador === getters.getSelected) puntos += gatada.Resultado.PrimerGatador
         if (gatada.SegundoGatador === getters.getSelected) puntos += gatada.Resultado.SegundoGatador
       })

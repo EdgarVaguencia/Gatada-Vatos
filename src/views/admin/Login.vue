@@ -52,7 +52,7 @@ export default class Login extends Mixins(UserMixins) {
   showPsw: boolean = false
   isLoading:boolean = false
 
-  login(evt = null) {
+  login (evt = null) {
     if(evt && (evt.type === 'keydown' && evt.keyCode !== 13)) return
     if (this.email.length === 0 || this.password.length === 0) return
     this.isLoading = true

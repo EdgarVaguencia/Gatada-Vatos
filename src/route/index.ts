@@ -4,55 +4,41 @@ import store from '@/db'
 
 Vue.use(VueRouter)
 
-const routes: Array<RouteConfig> = [
+const routes: RouteConfig[] = [
   {
     path: '/',
-    component: () => import('@/layouts/Public.vue'),
+    component: async () => await import('@/layouts/Public.vue'),
     children: [
       {
         path: '',
         name: 'Home',
-        component: () => import('@/views/Home.vue')
+        component: async () => await import('@/views/Home.vue')
       },
       {
         path: 'temporada/:temporada',
         name: 'Temporada',
-        component: () => import('@/views/Home.vue'),
-        // beforeEnter: (to, from, next) => {
-        //   console.info('Route temporada index')
-        //   store.dispatch('setTemporada', to.params.temporada)
-        //     .then(_ => {
-        //       next()
-        //     })
-        // },
+        component: async () => await import('@/views/Home.vue')
       },
       {
         path: ':temporada/gatador/:id',
         name: 'Gatador',
-        component: () => import('@/views/Gatador.vue'),
-        // beforeEnter: (to, from, next) => {
-        //   console.info('Route gatador index')
-        //   store.dispatch('setGatador', { id: to.params.id })
-        //     .then(_ => {
-        //       next()
-        //     })
-        // }
+        component: async () => await import('@/views/Gatador.vue')
       }
     ]
   },
   {
     path: '/admin',
-    component: () => import('@/layouts/Admin.vue'),
+    component: async () => await import('@/layouts/Admin.vue'),
     children: [
       {
         path: '',
         name: 'Login',
-        component: () => import('../views/admin/Login.vue')
+        component: async () => await import('../views/admin/Login.vue')
       },
       {
         path: 'gatadores',
         name: 'AdminGatadores',
-        component: () => import('../views/admin/GatadorAdmin.vue'),
+        component: async () => await import('../views/admin/GatadorAdmin.vue'),
         meta: {
           auth: true
         }
@@ -60,7 +46,7 @@ const routes: Array<RouteConfig> = [
       {
         path: 'gatadas',
         name: 'AdminGatadas',
-        component: () => import('../views/admin/GatadaAdmin.vue'),
+        component: async () => await import('../views/admin/GatadaAdmin.vue'),
         meta: {
           auth: true
         }
@@ -68,7 +54,7 @@ const routes: Array<RouteConfig> = [
       {
         path: 'temporada',
         name: 'AdminTemporada',
-        component: () => import('../views/admin/SedeAdmin.vue'),
+        component: async () => await import('../views/admin/SedeAdmin.vue'),
         meta: {
           auth: true
         }
@@ -88,7 +74,7 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const userLogin = store.getters.isLogin
+  const userLogin: boolean = store.getters.isLogin
 
   if (to.matched.some(view => view.meta.auth) && !userLogin) next({ name: 'Login' })
   else next()

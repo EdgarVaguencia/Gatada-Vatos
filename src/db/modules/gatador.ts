@@ -11,17 +11,17 @@ export default {
     RESET_GATADORES (state) {
       state.gatadores = []
     },
-    ADD_GATADOR (state, gatador) {
-      let gato = state.gatadores.find(g => g.Id === gatador.Id)
+    ADD_GATADOR (state, gatador: gatadorType) {
+      const gato: gatadorType = state.gatadores.find((g: gatadorType) => g.Id === gatador.Id)
 
-      if (!gatador.Redes) gatador.Redes = {}
+      if (gatador.Redes !== null) gatador.Redes = {}
 
-      if (!gato) state.gatadores.push(gatador)
+      if (gato === null) state.gatadores.push(gatador)
     },
     UPDATE_GATADOR (state, info) {
-      let gatador = state.gatadores.find(g => g.Id === info.data.Id)
+      const gatador: gatadorType = state.gatadores.find((g: gatadorType) => g.Id === info.data.Id)
 
-      if (gatador) {
+      if (gatador !== null) {
         gatador.Nombre = info.data.Nombre
         gatador.Imagen = info.data.Imagen
         gatador.Activo = info.data.Activo
@@ -29,10 +29,10 @@ export default {
         gatador.Temporadas = info.data.Temporadas
       }
     },
-    REMOVE_GATADOR (state, index) {
+    REMOVE_GATADOR (state, index: number) {
       state.gatadores.splice(index, 1)
     },
-    SET_GATADOR (state, gatador) {
+    SET_GATADOR (state, gatador: gatadorType) {
       state.gatador = gatador
     },
     SET_CURRENT_GATADOR (state, gatadorObj) {
@@ -46,8 +46,8 @@ export default {
         .onSnapshot(query => {
           query.docChanges().forEach(change => {
             const { newIndex, oldIndex, doc, type } = change
-            let data = doc.data()
-            data['Uuid'] = doc.id
+            const data = doc.data()
+            data.Uuid = doc.id
             if (type === 'added') {
               commit('ADD_GATADOR', data)
             } else if (type === 'modified') {
@@ -58,14 +58,14 @@ export default {
           })
         })
     },
-    fetchGatador ({ commit, dispatch }, idGatador) {
+    async fetchGatador ({ commit, dispatch }, idGatador: number) {
       return firebase.firestore().collection('gatadores')
-        .where('Id', '==', parseInt(idGatador))
+        .where('Id', '==', idGatador)
         .onSnapshot(query => {
           query.docChanges().forEach(change => {
             const { newIndex, oldIndex, doc, type } = change
-            let data = doc.data()
-            data['Uuid'] = doc.id
+            const data = doc.data()
+            data.Uuid = doc.id
             if (type === 'added') {
               commit('SET_GATADOR', data)
             } else if (type === 'modified') {
@@ -77,10 +77,10 @@ export default {
           })
         })
     },
-    updateGatador ({ dispatch }, gatador:gatadorType) {
-      let gatadorDoc = firebase.firestore().collection('gatadores').doc(gatador.Uuid)
+    async updateGatador ({ dispatch }, gatador: gatadorType) {
+      const gatadorDoc = firebase.firestore().collection('gatadores').doc(gatador.Uuid)
 
-      return gatadorDoc.update(
+      return await gatadorDoc.update(
         {
           Nombre: gatador.Nombre,
           Imagen: gatador.Imagen,
@@ -95,8 +95,8 @@ export default {
           return false
         })
     },
-    saveGatador ({ dispatch }, gatador:gatadorType) {
-      return firebase.firestore().collection('gatadores').add(gatador)
+    async saveGatador ({ dispatch }, gatador: gatadorType) {
+      return await firebase.firestore().collection('gatadores').add(gatador)
         .then(data => {
           return true
         })
@@ -106,35 +106,35 @@ export default {
           return false
         })
     },
-    setGatador ({ commit }, data) {
+    setGatador ({ commit }, data: gatadorType) {
       commit('SET_CURRENT_GATADOR', data)
     }
   },
   getters: {
-    getGatadores: state => {
+    getGatadores: (state): gatadorType[] => {
       return state.gatadores
     },
-    getGatador: (state, getters) => (idGatador = 0) => {
-      let idBusqueda = idGatador !== 0 ? idGatador : getters.getSelected
-      return state.gatadores.find(gat => gat.Id === idBusqueda)
+    getGatador: (state, getters) => (idGatador: number = 0): gatadorType => {
+      const idBusqueda: number = idGatador !== 0 ? idGatador : getters.getSelected
+      return state.gatadores.find((gat: gatadorType) => gat.Id === idBusqueda)
     },
-    getGatadoresTemporada: (state, getters) => (uuid?:string, nombre?:string) => {
-      let temporada:temporadaType = undefined
-      if (uuid && uuid.length > 0) {
-        temporada = getters.getTemporada.find(t => t.Uuid === uuid)
-      } else if (nombre && nombre.length > 0) {
-        temporada = getters.getTemporada.find(t => t.Nombre === nombre)
+    getGatadoresTemporada: (state, getters) => (uuid?: string, nombre?: string): gatadorType[] => {
+      let temporada: temporadaType
+      if (uuid?.length > 0) {
+        temporada = getters.getTemporada.find((t: temporadaType) => t.Uuid === uuid)
+      } else if (nombre?.length > 0) {
+        temporada = getters.getTemporada.find((t: temporadaType) => t.Nombre === nombre)
       } else {
         temporada = getters.getTemporadaActual
       }
-      if (temporada) {
-        return state.gatadores.filter(g => {
-          return g.Temporadas.indexOf(temporada.Uuid) >= 0
+      if (temporada !== null) {
+        return state.gatadores.filter((g: gatadorType) => {
+          return g.Temporadas.includes(temporada.Uuid)
         })
       }
       return getters.getGatadores
     },
-    getSelected: (state) => {
+    getSelected: (state): number => {
       return state.selectGatador
     }
   }

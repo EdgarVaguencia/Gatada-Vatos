@@ -2,14 +2,15 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class UserMixins extends Vue {
-  get isLogin() {
+  get isLogin (): boolean {
     return this.$store.getters.isLogin
   }
 
-  logOut() {
+  logOut (): void {
     this.$store.dispatch('logOut')
-      .then(() => {
-        this.$router.push({ name: 'Login' }).catch(err => {})
+      .then(_ => {
+        this.$router.push({ name: 'Login' }).catch(err => console.info(err))
       })
+      .catch(err => console.info(err))
   }
 }
